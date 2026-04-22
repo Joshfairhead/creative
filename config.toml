@@ -1,5 +1,5 @@
 title = "All"
-base_url = "https://portfolio.joshafairhead.com"
+base_url = "https://creative.joshafairhead.com"
 theme = "duckquill"
 compile_sass = true
 minify_html = true

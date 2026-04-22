@@ -1,6 +1,6 @@
 <div class="content-card-grid" id="card-grid">
     {% for page in pages %}
-    <a href="{{ page.permalink }}" class="content-card"
+    <a href="{{ page.permalink }}" class="content-card{% if "Books" in page.taxonomies.tags %} content-card--book{% endif %}"
        data-tags="{{ page.taxonomies.tags | default(value=[]) | join(sep=',') }}">
         {% if page.extra.card or page.extra.banner %}
         <div class="content-card__banner">

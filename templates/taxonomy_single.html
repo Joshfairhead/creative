@@ -3,6 +3,10 @@
 {% block content %}
 <h1>{{ term.name }}</h1>
 
-{% set pages = term.pages %}
+{% if term.name == "Music" %}
+    {% set pages = term.pages | sort(attribute="title") %}
+{% else %}
+    {% set pages = term.pages %}
+{% endif %}
 {% include "partials/card_grid.html" %}
 {% endblock content %}

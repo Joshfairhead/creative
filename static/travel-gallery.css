@@ -1,0 +1,211 @@
+/* Cover Image Styling */
+.cover-image {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 2rem auto;
+}
+
+.cover-image img {
+    height: 450px;
+    width: auto;
+    object-fit: cover;
+}
+
+/* Travel Gallery Styling */
+
+/* Gallery container */
+.travel-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    row-gap: 0.5rem;
+    column-gap: 1rem;
+    margin: 2rem 0;
+}
+
+/* Gallery with specific column counts */
+.gallery-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.gallery-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Full-width gallery that extends beyond content margins */
+.gallery-3-wide {
+    grid-template-columns: repeat(3, 1fr);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding: 0 2rem;
+}
+
+/* Gallery images */
+.travel-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    margin-bottom: -0.5rem;
+}
+
+.travel-gallery img:hover {
+    opacity: 0.8;
+    transform: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .travel-gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .gallery-3,
+    .gallery-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .travel-gallery img {
+        height: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .travel-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-2,
+    .gallery-3,
+    .gallery-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .travel-gallery img {
+        height: 300px;
+    }
+}
+
+/* Special styling for single hero images */
+.hero-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+/* Lightbox styles */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+}
+
+.lightbox.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    cursor: default;
+}
+
+.lightbox img:hover {
+    transform: none !important;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.lightbox-close:hover {
+    opacity: 0.7;
+}
+
+/* Navigation arrows */
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.lightbox-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.lightbox-prev {
+    left: 20px;
+}
+
+.lightbox-next {
+    right: 20px;
+}
+
+/* Hide arrows on mobile */
+@media (max-width: 768px) {
+    .lightbox-nav {
+        font-size: 24px;
+        padding: 8px 12px;
+    }
+    
+    .lightbox-prev {
+        left: 10px;
+    }
+    
+    .lightbox-next {
+        right: 10px;
+    }
+}
+
+/* Gallery sizing classes */
+.gallery-resized img {
+    height: 280px !important;
+    object-fit: cover;
+}
+
+.gallery-natural img {
+    height: auto !important;
+    object-fit: contain;
+}
+
+.gallery-diagrams img {
+    height: auto !important;
+    object-fit: contain;
+}
+
+
