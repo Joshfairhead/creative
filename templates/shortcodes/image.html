@@ -1,0 +1,38 @@
+{%- set image_classes = [] -%}
+{%- if full is defined and full -%}
+	{%- set image_classes = image_classes | concat(with="full") -%}
+{%- endif -%}
+{%- if full_bleed is defined and full_bleed -%}
+	{%- set image_classes = image_classes | concat(with="full-bleed") -%}
+{%- endif -%}
+{%- if start is defined and start -%}
+	{%- set image_classes = image_classes | concat(with="start") -%}
+{%- endif -%}
+{%- if end is defined and end -%}
+	{%- set image_classes = image_classes | concat(with="end") -%}
+{%- endif -%}
+{%- if pixels is defined and pixels -%}
+	{%- set image_classes = image_classes | concat(with="pixels") -%}
+{%- endif -%}
+{%- if transparent is defined and transparent -%}
+	{%- set image_classes = image_classes | concat(with="transparent") -%}
+{%- endif -%}
+{%- if no_hover is defined and no_hover -%}
+	{%- set image_classes = image_classes | concat(with="no-hover") -%}
+{%- endif -%}
+{%- if spoiler is defined and spoiler -%}
+	{%- set image_classes = image_classes | concat(with="spoiler") -%}
+{%- endif -%}
+{%- if spoiler is defined and spoiler and solid is defined and solid -%}
+	{%- set image_classes = image_classes | concat(with="solid") -%}
+{%- endif -%}
+
+{%- set image_classes = image_classes | join(sep=" ") -%}
+
+{%- if url_min is defined and url_min -%}
+	<a href="{{ url }}">
+		<img class="{{ image_classes }}" {%- if alt is defined -%}alt="{{ alt }}"{%- endif -%} src="{{ url_min }}" decoding="async" loading="lazy" />
+	</a>
+{%- else -%}
+	<img class="{{ image_classes }}" {%- if alt is defined -%}alt="{{ alt }}"{%- endif -%} src="{{ url }}" decoding="async" loading="lazy" />
+{%- endif -%}

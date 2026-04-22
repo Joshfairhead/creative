@@ -1,0 +1,52 @@
+title = "All"
+base_url = "https://portfolio.joshafairhead.com"
+theme = "duckquill"
+compile_sass = true
+minify_html = true
+generate_feeds = false
+build_search_index = false
+
+taxonomies = [
+	{ name = "tags", feed = false },
+]
+
+[markdown]
+highlight_code = true
+highlight_theme = "css"
+highlight_themes_css = [
+	{ theme = "solarized-dark", filename = "syntax-theme-dark.css" },
+	{ theme = "solarized-light", filename = "syntax-theme-light.css" }
+]
+smart_punctuation = true
+bottom_footnotes = true
+
+[extra]
+accent_color = "#1e40af"
+accent_color_dark = "#3b82f6"
+fix_contrast_dark = true
+show_reading_time = true
+csp = false
+
+styles = []
+scripts = ["tag-filter.js"]
+
+[extra.nav]
+show_feed = false
+show_theme_switcher = false
+show_repo = false
+links = []
+
+[extra.footer]
+links = []
+socials = []
+show_copyright = false
+show_powered_by = false
+show_source = false
+
+[extra.comments]
+host = ""
+user = ""
+
+[extra.debug]
+layout = false
+no_styles = false

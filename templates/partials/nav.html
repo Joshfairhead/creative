@@ -1,0 +1,16 @@
+<header id="site-nav">
+	<nav>
+		<a href="#main-content" tabindex="0">Skip to Main Content</a>
+		<ul>
+			<li id="home">
+				<a href="{{ get_url(path='/') }}"
+					{%- if current_url | default(value="/") | trim_end_matches(pat="/") | safe == get_url(path="/") | trim_end_matches(pat='/') | safe -%}
+						class="active"
+					{%- endif -%}>
+					<i class="icon"></i>
+					{{- config.title -}}
+				</a>
+			</li>
+		</ul>
+	</nav>
+</header>
