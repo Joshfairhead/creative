@@ -1,4 +1,4 @@
-title = "All"
+title = "Creative"
 base_url = "https://creative.joshafairhead.com"
 theme = "duckquill"
 compile_sass = true
@@ -34,7 +34,10 @@ scripts = ["tag-filter.js"]
 show_feed = false
 show_theme_switcher = false
 show_repo = false
-links = []
+links = [
+	{ name = "Blog", url = "https://blog.joshafairhead.com" },
+	{ name = "Portfolio", url = "https://portfolio.joshafairhead.com" },
+]
 
 [extra.footer]
 links = []
