@@ -1,4 +1,10 @@
 public/
+public_Blog/
+public_Portfolio/
+dist/
+_build/
+.build-*
+.serve-*
 
 # Local Netlify folder
 .netlify
