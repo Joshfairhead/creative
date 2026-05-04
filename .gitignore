@@ -1,4 +1,7 @@
 public/
+dist/
+.build-*
+.serve-*
 
 # Local Netlify folder
 .netlify
