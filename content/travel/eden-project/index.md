@@ -46,11 +46,11 @@ Paying my ticket fare I'm struck by the two guide books, one for adults that is 
 
 I head out to the vista and take in the alien landscape, five geodesic domes that look like bubbles on the earth, and a spikey museum structure all surrounded by nature trails. Being a fan of treasure hunts, I head along the 'pollination pathway' to collect the infographics of different insects. This fits with my hidden agenda of hoping to apply some of the learnings I've made through reading the Dramatic Universe, where the Twelve Essence classes are examined through the lens of Bennetts Pentadic structure. This would be what he calls the pentad of emergence, or as Tony Hodgeson has articulated as the phytogenic cosmos with the quality of vitality; this consists of:
 
-Animals
-Germs
-Plants
-Soil and Ocean
-Crystals
+- Animals
+- Germs
+- Plants
+- Soil and Ocean
+- Crystals
 
 <div class="travel-gallery gallery-3 gallery-resized">
 {{ image(url="IMG_20260512_100629.jpg", alt="Eden Project", no_hover=true) }}
