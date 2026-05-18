@@ -53,7 +53,7 @@ At this point its time for lunch, the foods mostly non-vegatarian, so my options
 
 Outside the bioacoustics are in full swing with bird song everywhere. The robins are not bothered by the tourists at all hopping around on tables outside, with magpies also occupying nearby trees.
 
-### Inside
+## Inside
 
 The moment of truth finally arrives, as having eaten lunch its finally time to enter the domes themselves. Looking up I take in the spacious architecture and notice the hexagons and corresponding tetrahedral trusses that support the vast structure. It's quite incredible as there is not a pillar in sight, and all self supporting.
 
@@ -87,9 +87,13 @@ Departing for the woods of mythology we get to the performanece just on thyme, I
 
 "does your clock tell me where the ties are at? or the season?" one actor shouts across to another. "What about the present?" comes the reply. Another chimes in about the present moment, which is refuted to be the now past by another. The jostle continues and we move on towards notions of memory, being offered a bag with blindfolds and herbs in it. Kudos to the performers, as the show seemed to require a fair bit of energy, in a crowd that was mostly leather. The research seemed pretty solid too and for those unfamiliar with the subject it seemed like an accessible way to get some points across. They seemed to enjoy themselves also!
 
+## The Core
+
 With this over, it was time to follow the pollination pathway back to the domes, passing a japanese style water way or micro aquaduct cut into granite before visiting the 'core'. This was a science mueseum of sorts centered on the microbiome, with a large sculpture blowing smoke rings. Last but not least was... yet another giant cosmic egg that looked like a pinecone carved out of granite with cyclic 'nobbles' spiraling in a fibonacci sequence.
 
 This was of course but one element of dejavu for me as a throwback to Auroville, where the Matrimindir is essentially a geodesic dome that looks like an egg. There is a pattern that is becoming more and more apparent with all these gardens, which makes sense in the context of the Dramatic Universe vol.4 as the mother cults receptive ground.
+
+## Departure
 
 Leaving the core, I decide to attempt the zipline before leaving, but fail to find the launch platform and instead end up at the exit. Since I know I'll be returning I decide to savour the experience and leave it as a loose end that can act as a motivator to inspire a fresh return. I collect my bags from reception and head off to find the bus.
 
