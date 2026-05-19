@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gallery Editor - Eden Project</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+h1 { margin-bottom: 20px; text-align: center; }
+.section { background: #16213e; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+.section h2 { margin-bottom: 4px; font-size: 1.1em; color: #a8d8ea; }
+.section .desc { font-size: 0.85em; color: #888; margin-bottom: 12px; }
+.gallery-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px;
+  border: 2px dashed #333; border-radius: 6px; padding: 8px;
+  transition: border-color 0.2s;
+}
+.gallery-grid.drag-over { border-color: #a8d8ea; background: rgba(168,216,234,0.05); }
+.thumb {
+  position: relative; width: 120px; height: 90px; border-radius: 4px;
+  overflow: hidden; cursor: grab; transition: transform 0.15s, opacity 0.15s;
+  border: 2px solid transparent;
+}
+.thumb:hover { border-color: #a8d8ea; }
+.thumb.dragging { opacity: 0.3; transform: scale(0.95); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.thumb .delete-btn {
+  position: absolute; top: 2px; right: 2px; background: rgba(255,50,50,0.85);
+  color: white; border: none; border-radius: 50%; width: 20px; height: 20px;
+  font-size: 12px; cursor: pointer; display: none; align-items: center;
+  justify-content: center; line-height: 1;
+}
+.thumb:hover .delete-btn { display: flex; }
+.thumb .filename {
+  position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7);
+  font-size: 9px; padding: 2px 4px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+#trash-zone {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #cc3333; color: white; padding: 16px 40px; border-radius: 12px;
+  font-size: 1.2em; font-weight: bold; display: none; z-index: 100;
+  border: 3px dashed #ff6666; transition: background 0.2s;
+}
+#trash-zone.drag-over { background: #ff0000; }
+#export-btn {
+  display: block; margin: 30px auto; padding: 14px 40px;
+  background: #4CAF50; color: white; border: none; border-radius: 8px;
+  font-size: 1.1em; cursor: pointer;
+}
+#export-btn:hover { background: #45a049; }
+#export-output { display: none; white-space: pre-wrap; background: #0d1117; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; margin-top: 20px; max-height: 400px; overflow: auto; }
+.count { color: #888; font-size: 0.85em; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Eden Project Gallery Editor</h1>
+<p style="text-align:center;margin-bottom:20px;color:#888;">Drag photos between sections to move them. Click the red X to delete. Click Export when done.</p>
+
+<div id="sections"></div>
+
+<div id="trash-zone">Drop here to delete</div>
+
+<button id="export-btn">Export arrangement</button>
+<pre id="export-output"></pre>
+
+<script>
+const BASE = '/travel/eden-project/';
+
+const sections = [
+  {
+    id: 'arrival',
+    title: '0. Arrival & History',
+    desc: 'Posters, Buckminster Fuller history, Tim Smit story',
+    images: [
+      'IMG_20260512_094017.jpg',
+      'IMG_20260512_094022.jpg',
+      'IMG_20260512_094325.jpg',
+      'IMG_20260512_094403.jpg',
+      'IMG_20260512_094728.jpg',
+      'IMG_20260512_095752.jpg',
+      'IMG_20260512_095816.jpg',
+      'IMG_20260512_095818.jpg'
+    ]
+  },
+  {
+    id: 'entry',
+    title: '1. Entry & Pollination Trail',
+    desc: 'Vista, geodesic domes, pollination pathway, insect infographics',
+    images: [
+      'IMG_20260512_100629.jpg',
+      'IMG_20260512_100800.jpg',
+      'IMG_20260512_100803.jpg',
+      'IMG_20260512_100807.jpg',
+      'IMG_20260512_100822.jpg',
+      'IMG_20260512_100824.jpg',
+      'IMG_20260512_100826.jpg',
+      'IMG_20260512_100829.jpg',
+      'IMG_20260512_100958.jpg',
+      'IMG_20260512_101106.jpg',
+      'IMG_20260512_101228.jpg',
+      'IMG_20260512_101259.jpg',
+      'IMG_20260512_101415.jpg',
+      'IMG_20260512_101443.jpg',
+      'IMG_20260512_101453.jpg',
+      'IMG_20260512_101512.jpg',
+      'IMG_20260512_101526.jpg',
+      'IMG_20260512_101536.jpg',
+      'IMG_20260512_101551.jpg',
+      'IMG_20260512_101602.jpg',
+      'IMG_20260512_101945.jpg',
+      'IMG_20260512_101953.jpg',
+      'IMG_20260512_102006.jpg',
+      'IMG_20260512_102025.jpg',
+      'IMG_20260512_102313.jpg',
+      'IMG_20260512_102319.jpg',
+      'IMG_20260512_102324.jpg',
+      'IMG_20260512_102415.jpg',
+      'IMG_20260512_102423.jpg',
+      'IMG_20260512_102440.jpg',
+      'IMG_20260512_102549.jpg',
+      'IMG_20260512_102605.jpg',
+      'IMG_20260512_102630.jpg',
+      'IMG_20260512_102707.jpg',
+      'IMG_20260512_102726.jpg',
+      'IMG_20260512_102744.jpg',
+      'IMG_20260512_102756.jpg',
+      'IMG_20260512_102826.jpg',
+      'IMG_20260512_102847.jpg',
+      'IMG_20260512_102942.jpg',
+      'IMG_20260512_103002.jpg',
+      'IMG_20260512_103018.jpg',
+      'IMG_20260512_103034.jpg',
+      'IMG_20260512_103038.jpg',
+      'IMG_20260512_103041.jpg',
+      'IMG_20260512_103049.jpg',
+      'IMG_20260512_103057.jpg',
+      'IMG_20260512_103104.jpg',
+      'IMG_20260512_103109.jpg',
+      'IMG_20260512_103117.jpg',
+      'IMG_20260512_103124.jpg',
+      'IMG_20260512_103127.jpg',
+      'IMG_20260512_103131.jpg',
+      'IMG_20260512_103146.jpg',
+      'IMG_20260512_103151.jpg',
+      'IMG_20260512_103206.jpg',
+      'IMG_20260512_103229.jpg',
+      'IMG_20260512_103256.jpg',
+      'IMG_20260512_103327.jpg',
+      'IMG_20260512_103336.jpg',
+      'IMG_20260512_103349.jpg',
+      'IMG_20260512_103356.jpg',
+      'IMG_20260512_103406.jpg',
+      'IMG_20260512_103425.jpg',
+      'IMG_20260512_103432.jpg'
+    ]
+  },
+  {
+    id: 'hive_stones',
+    title: '2. Hive, Stone Castings & Trail',
+    desc: 'Hive structure, stone castings, recycled plastic pillars, wooden railings',
+    images: [
+      'IMG_20260512_104004.jpg',
+      'IMG_20260512_104013.jpg',
+      'IMG_20260512_104034.jpg',
+      'IMG_20260512_104057.jpg',
+      'IMG_20260512_104108.jpg',
+      'IMG_20260512_104331.jpg',
+      'IMG_20260512_104346.jpg',
+      'IMG_20260512_104350.jpg',
+      'IMG_20260512_104353.jpg',
+      'IMG_20260512_104416.jpg',
+      'IMG_20260512_104422.jpg',
+      'IMG_20260512_104429.jpg',
+      'IMG_20260512_104601.jpg',
+      'IMG_20260512_104605.jpg',
+      'IMG_20260512_104613.jpg',
+      'IMG_20260512_104740.jpg',
+      'IMG_20260512_104802.jpg',
+      'IMG_20260512_104808.jpg',
+      'IMG_20260512_104836.jpg',
+      'IMG_20260512_104904.jpg',
+      'IMG_20260512_104909.jpg',
+      'IMG_20260512_104948.jpg',
+      'IMG_20260512_104952.jpg',
+      'IMG_20260512_105000.jpg',
+      'IMG_20260512_105010.jpg',
+      'IMG_20260512_105123.jpg',
+      'IMG_20260512_105132.jpg',
+      'IMG_20260512_105134.jpg',
+      'IMG_20260512_105137.jpg',
+      'IMG_20260512_105141.jpg',
+      'IMG_20260512_105152.jpg',
+      'IMG_20260512_105200.jpg',
+      'IMG_20260512_105204.jpg',
+      'IMG_20260512_105212.jpg',
+      'IMG_20260512_105218.jpg',
+      'IMG_20260512_105232.jpg',
+      'IMG_20260512_105237.jpg',
+      'IMG_20260512_105400.jpg',
+      'IMG_20260512_105406.jpg',
+      'IMG_20260512_105445.jpg',
+      'IMG_20260512_105457.jpg',
+      'IMG_20260512_105511.jpg',
+      'IMG_20260512_105533.jpg',
+      'IMG_20260512_105544.jpg',
+      'IMG_20260512_105552.jpg',
+      'IMG_20260512_105607.jpg',
+      'IMG_20260512_105658.jpg',
+      'IMG_20260512_105704.jpg',
+      'IMG_20260512_105810.jpg',
+      'IMG_20260512_105920.jpg',
+      'IMG_20260512_105933.jpg',
+      'IMG_20260512_105936.jpg',
+      'IMG_20260512_105950.jpg'
+    ]
+  },
+  {
+    id: 'woods',
+    title: '3. The Woods & Mine',
+    desc: 'Mythology, Green Man, school tables, stage structure',
+    images: [
+      'IMG_20260512_110116.jpg',
+      'IMG_20260512_110124.jpg',
+      'IMG_20260512_110140.jpg',
+      'IMG_20260512_110217.jpg',
+      'IMG_20260512_110220.jpg',
+      'IMG_20260512_110233.jpg',
+      'IMG_20260512_110236.jpg',
+      'IMG_20260512_110300.jpg',
+      'IMG_20260512_110316.jpg',
+      'IMG_20260512_110321.jpg',
+      'IMG_20260512_110341.jpg',
+      'IMG_20260512_110350.jpg',
+      'IMG_20260512_110407.jpg',
+      'IMG_20260512_110412.jpg',
+      'IMG_20260512_110419.jpg',
+      'IMG_20260512_110424.jpg',
+      'IMG_20260512_110442.jpg',
+      'IMG_20260512_110525.jpg',
+      'IMG_20260512_110538.jpg',
+      'IMG_20260512_110604.jpg',
+      'IMG_20260512_110610.jpg',
+      'IMG_20260512_110626.jpg',
+      'IMG_20260512_110650.jpg',
+      'IMG_20260512_110728.jpg',
+      'IMG_20260512_110734.jpg',
+      'IMG_20260512_110742.jpg',
+      'IMG_20260512_110808.jpg',
+      'IMG_20260512_110812.jpg',
+      'IMG_20260512_110822.jpg',
+      'IMG_20260512_110829.jpg',
+      'IMG_20260512_110851.jpg',
+      'IMG_20260512_110903.jpg',
+      'IMG_20260512_110912.jpg',
+      'IMG_20260512_110920.jpg',
+      'IMG_20260512_110930.jpg',
+      'IMG_20260512_111100.jpg',
+      'IMG_20260512_111109.jpg',
+      'IMG_20260512_111115.jpg',
+      'IMG_20260512_111125.jpg',
+      'IMG_20260512_111136.jpg',
+      'IMG_20260512_111154.jpg',
+      'IMG_20260512_111208.jpg',
+      'IMG_20260512_111226.jpg',
+      'IMG_20260512_111245.jpg',
+      'IMG_20260512_111251.jpg',
+      'IMG_20260512_111254.jpg',
+      'IMG_20260512_111316.jpg',
+      'IMG_20260512_111351.jpg',
+      'IMG_20260512_111358.jpg',
+      'IMG_20260512_111429.jpg',
+      'IMG_20260512_111550.jpg',
+      'IMG_20260512_111601.jpg',
+      'IMG_20260512_111740.jpg'
+    ]
+  },
+  {
+    id: 'gardens',
+    title: '4. Gardens & Agriculture',
+    desc: 'Global gardens, regenerative agriculture, crops, hexagonal supply chains',
+    images: [
+      'IMG_20260512_112716.jpg',
+      'IMG_20260512_112739.jpg',
+      'IMG_20260512_112933.jpg',
+      'IMG_20260512_113631.jpg',
+      'IMG_20260512_113639.jpg',
+      'IMG_20260512_113700.jpg',
+      'IMG_20260512_113708.jpg',
+      'IMG_20260512_113849.jpg',
+      'IMG_20260512_113933.jpg',
+      'IMG_20260512_113945.jpg',
+      'IMG_20260512_113958.jpg',
+      'IMG_20260512_114027.jpg',
+      'IMG_20260512_114047.jpg',
+      'IMG_20260512_114057.jpg',
+      'IMG_20260512_114100.jpg',
+      'IMG_20260512_114105.jpg',
+      'IMG_20260512_114111.jpg',
+      'IMG_20260512_114121.jpg',
+      'IMG_20260512_114125.jpg',
+      'IMG_20260512_114130.jpg',
+      'IMG_20260512_114137.jpg',
+      'IMG_20260512_114141.jpg',
+      'IMG_20260512_114149.jpg',
+      'IMG_20260512_114204.jpg',
+      'IMG_20260512_114224.jpg',
+      'IMG_20260512_114227.jpg',
+      'IMG_20260512_114235.jpg',
+      'IMG_20260512_114244.jpg',
+      'IMG_20260512_114256.jpg',
+      'IMG_20260512_114302.jpg',
+      'IMG_20260512_114310.jpg',
+      'IMG_20260512_114315.jpg',
+      'IMG_20260512_114328.jpg',
+      'IMG_20260512_114349.jpg',
+      'IMG_20260512_114430.jpg',
+      'IMG_20260512_114436.jpg',
+      'IMG_20260512_114445.jpg',
+      'IMG_20260512_114503.jpg',
+      'IMG_20260512_114521.jpg',
+      'IMG_20260512_114533.jpg',
+      'IMG_20260512_114544.jpg',
+      'IMG_20260512_114553.jpg',
+      'IMG_20260512_114600.jpg',
+      'IMG_20260512_114608.jpg',
+      'IMG_20260512_114614.jpg',
+      'IMG_20260512_114627.jpg',
+      'IMG_20260512_114637.jpg',
+      'IMG_20260512_114658.jpg',
+      'IMG_20260512_114712.jpg',
+      'IMG_20260512_114716.jpg',
+      'IMG_20260512_114726.jpg',
+      'IMG_20260512_114735.jpg',
+      'IMG_20260512_114755.jpg',
+      'IMG_20260512_114806.jpg',
+      'IMG_20260512_114811.jpg',
+      'IMG_20260512_114820.jpg',
+      'IMG_20260512_114833.jpg',
+      'IMG_20260512_114844.jpg',
+      'IMG_20260512_114913.jpg',
+      'IMG_20260512_114921.jpg',
+      'IMG_20260512_114936.jpg',
+      'IMG_20260512_114952.jpg',
+      'IMG_20260512_115004.jpg',
+      'IMG_20260512_115012.jpg',
+      'IMG_20260512_115024.jpg',
+      'IMG_20260512_115059.jpg',
+      'IMG_20260512_115115.jpg',
+      'IMG_20260512_115131.jpg',
+      'IMG_20260512_115147.jpg',
+      'IMG_20260512_115217.jpg',
+      'IMG_20260512_115240.jpg',
+      'IMG_20260512_115306.jpg',
+      'IMG_20260512_115313.jpg',
+      'IMG_20260512_115319.jpg',
+      'IMG_20260512_115352.jpg',
+      'IMG_20260512_115419.jpg',
+      'IMG_20260512_115422.jpg',
+      'IMG_20260512_115425.jpg',
+      'IMG_20260512_115444.jpg',
+      'IMG_20260512_115453.jpg',
+      'IMG_20260512_115519.jpg',
+      'IMG_20260512_115524.jpg',
+      'IMG_20260512_115533.jpg',
+      'IMG_20260512_115541.jpg',
+      'IMG_20260512_115555.jpg',
+      'IMG_20260512_115616.jpg',
+      'IMG_20260512_115625.jpg',
+      'IMG_20260512_115635.jpg',
+      'IMG_20260512_115644.jpg',
+      'IMG_20260512_115700.jpg',
+      'IMG_20260512_115706.jpg',
+      'IMG_20260512_115719.jpg',
+      'IMG_20260512_115723.jpg',
+      'IMG_20260512_115729.jpg',
+      'IMG_20260512_115756.jpg',
+      'IMG_20260512_115805.jpg',
+      'IMG_20260512_115823.jpg',
+      'IMG_20260512_115829.jpg',
+      'IMG_20260512_115922.jpg',
+      'IMG_20260512_115947.jpg',
+      'IMG_20260512_115955.jpg'
+    ]
+  },
+  {
+    id: 'lunch_outside',
+    title: '5. Lunch & Outside Domes',
+    desc: 'Birdsong, robins, outdoor area near domes',
+    images: [
+      'IMG_20260512_120002.jpg',
+      'IMG_20260512_120012.jpg',
+      'IMG_20260512_120029.jpg',
+      'IMG_20260512_120035.jpg',
+      'IMG_20260512_120055.jpg',
+      'IMG_20260512_120056.jpg',
+      'IMG_20260512_120104.jpg',
+      'IMG_20260512_120128.jpg',
+      'IMG_20260512_120136.jpg',
+      'IMG_20260512_120144.jpg',
+      'IMG_20260512_120203.jpg',
+      'IMG_20260512_120210.jpg',
+      'IMG_20260512_120212.jpg',
+      'IMG_20260512_120233.jpg',
+      'IMG_20260512_120235.jpg',
+      'IMG_20260512_120243.jpg',
+      'IMG_20260512_120348.jpg',
+      'IMG_20260512_120349.jpg',
+      'IMG_20260512_120358.jpg',
+      'IMG_20260512_120400.jpg',
+      'IMG_20260512_120414.jpg',
+      'IMG_20260512_120419.jpg',
+      'IMG_20260512_120436.jpg',
+      'IMG_20260512_120440.jpg',
+      'IMG_20260512_120446.jpg',
+      'IMG_20260512_120450.jpg',
+      'IMG_20260512_120457.jpg',
+      'IMG_20260512_120503.jpg',
+      'IMG_20260512_120520.jpg',
+      'IMG_20260512_120521.jpg',
+      'IMG_20260512_120524.jpg',
+      'IMG_20260512_120529.jpg',
+      'IMG_20260512_120541.jpg',
+      'IMG_20260512_120553.jpg',
+      'IMG_20260512_120623.jpg',
+      'IMG_20260512_120627.jpg',
+      'IMG_20260512_120643.jpg',
+      'IMG_20260512_120700.jpg',
+      'IMG_20260512_120706.jpg',
+      'IMG_20260512_120717.jpg',
+      'IMG_20260512_120731.jpg',
+      'IMG_20260512_120751.jpg',
+      'IMG_20260512_120809.jpg',
+      'IMG_20260512_120812.jpg',
+      'IMG_20260512_120831.jpg',
+      'IMG_20260512_120851.jpg',
+      'IMG_20260512_120855.jpg',
+      'IMG_20260512_120918.jpg',
+      'IMG_20260512_120921.jpg',
+      'IMG_20260512_120927.jpg',
+      'IMG_20260512_120942.jpg',
+      'IMG_20260512_121012.jpg',
+      'IMG_20260512_121028.jpg',
+      'IMG_20260512_121058.jpg',
+      'IMG_20260512_121124.jpg',
+      'IMG_20260512_121154.jpg',
+      'IMG_20260512_121202.jpg',
+      'IMG_20260512_121214.jpg',
+      'IMG_20260512_121217.jpg',
+      'IMG_20260512_121221.jpg',
+      'IMG_20260512_121234.jpg',
+      'IMG_20260512_121243.jpg',
+      'IMG_20260512_121244.jpg',
+      'IMG_20260512_121251.jpg',
+      'IMG_20260512_121255.jpg',
+      'IMG_20260512_121301.jpg',
+      'IMG_20260512_121305.jpg',
+      'IMG_20260512_121313.jpg',
+      'IMG_20260512_121319.jpg',
+      'IMG_20260512_121326.jpg',
+      'IMG_20260512_121328.jpg',
+      'IMG_20260512_121330.jpg',
+      'IMG_20260512_121337.jpg',
+      'IMG_20260512_121343.jpg',
+      'IMG_20260512_121345.jpg',
+      'IMG_20260512_121351.jpg',
+      'IMG_20260512_121405.jpg',
+      'IMG_20260512_121414.jpg',
+      'IMG_20260512_121439.jpg',
+      'IMG_20260512_121441.jpg',
+      'IMG_20260512_121445.jpg',
+      'IMG_20260512_121451.jpg',
+      'IMG_20260512_121502.jpg',
+      'IMG_20260512_121506.jpg',
+      'IMG_20260512_121514.jpg',
+      'IMG_20260512_121519.jpg',
+      'IMG_20260512_121532.jpg',
+      'IMG_20260512_121536.jpg',
+      'IMG_20260512_121559.jpg',
+      'IMG_20260512_121609.jpg',
+      'IMG_20260512_121627.jpg',
+      'IMG_20260512_121632.jpg',
+      'IMG_20260512_121645.jpg',
+      'IMG_20260512_121654.jpg',
+      'IMG_20260512_121702.jpg',
+      'IMG_20260512_121706.jpg',
+      'IMG_20260512_121714.jpg',
+      'IMG_20260512_121718.jpg',
+      'IMG_20260512_121731.jpg',
+      'IMG_20260512_121738.jpg',
+      'IMG_20260512_121747.jpg',
+      'IMG_20260512_121756.jpg',
+      'IMG_20260512_121803.jpg',
+      'IMG_20260512_121809.jpg',
+      'IMG_20260512_121817.jpg',
+      'IMG_20260512_121819.jpg',
+      'IMG_20260512_121831.jpg',
+      'IMG_20260512_121840.jpg',
+      'IMG_20260512_121842.jpg',
+      'IMG_20260512_121844.jpg',
+      'IMG_20260512_121848.jpg',
+      'IMG_20260512_121900.jpg',
+      'IMG_20260512_121904.jpg',
+      'IMG_20260512_121909.jpg',
+      'IMG_20260512_121935.jpg',
+      'IMG_20260512_121953.jpg',
+      'IMG_20260512_121956.jpg',
+      'IMG_20260512_122009.jpg',
+      'IMG_20260512_122018.jpg',
+      'IMG_20260512_122020.jpg',
+      'IMG_20260512_122025.jpg',
+      'IMG_20260512_122027.jpg',
+      'IMG_20260512_122036.jpg',
+      'IMG_20260512_122038.jpg',
+      'IMG_20260512_122046.jpg',
+      'IMG_20260512_122051.jpg',
+      'IMG_20260512_122102.jpg',
+      'IMG_20260512_122108.jpg',
+      'IMG_20260512_122115.jpg',
+      'IMG_20260512_122129.jpg',
+      'IMG_20260512_122149.jpg',
+      'IMG_20260512_122154.jpg',
+      'IMG_20260512_122159.jpg',
+      'IMG_20260512_122219.jpg',
+      'IMG_20260512_122222.jpg',
+      'IMG_20260512_122224.jpg',
+      'IMG_20260512_122230.jpg',
+      'IMG_20260512_122240.jpg',
+      'IMG_20260512_122243.jpg',
+      'IMG_20260512_122249.jpg',
+      'IMG_20260512_122301.jpg',
+      'IMG_20260512_122310.jpg',
+      'IMG_20260512_122310_1.jpg',
+      'IMG_20260512_122318.jpg',
+      'IMG_20260512_122324.jpg',
+      'IMG_20260512_122333.jpg',
+      'IMG_20260512_122338.jpg',
+      'IMG_20260512_122341.jpg',
+      'IMG_20260512_122344.jpg',
+      'IMG_20260512_122348.jpg',
+      'IMG_20260512_122349.jpg',
+      'IMG_20260512_122355.jpg',
+      'IMG_20260512_122357.jpg',
+      'IMG_20260512_122403.jpg',
+      'IMG_20260512_122406.jpg',
+      'IMG_20260512_122411.jpg',
+      'IMG_20260512_122417.jpg',
+      'IMG_20260512_122421.jpg',
+      'IMG_20260512_122425.jpg',
+      'IMG_20260512_122432.jpg',
+      'IMG_20260512_122445.jpg',
+      'IMG_20260512_122448.jpg'
+    ]
+  },
+  {
+    id: 'biome_climate',
+    title: '6. Inside: Waterfall & Climate',
+    desc: 'Geodesic architecture, trusses, carbon exhibit, cloud bridge, canopy',
+    images: [
+      'IMG_20260512_122746.jpg',
+      'IMG_20260512_122828.jpg',
+      'IMG_20260512_123124.jpg',
+      'IMG_20260512_123127.jpg',
+      'IMG_20260512_123136.jpg',
+      'IMG_20260512_123145.jpg',
+      'IMG_20260512_123205.jpg',
+      'IMG_20260512_123210.jpg',
+      'IMG_20260512_123214.jpg',
+      'IMG_20260512_123221.jpg',
+      'IMG_20260512_123226.jpg',
+      'IMG_20260512_123239.jpg',
+      'IMG_20260512_123245.jpg',
+      'IMG_20260512_123249.jpg',
+      'IMG_20260512_123256.jpg',
+      'IMG_20260512_123306.jpg',
+      'IMG_20260512_123314.jpg',
+      'IMG_20260512_123319.jpg',
+      'IMG_20260512_123343.jpg',
+      'IMG_20260512_123347.jpg',
+      'IMG_20260512_123355.jpg',
+      'IMG_20260512_123358.jpg',
+      'IMG_20260512_123411.jpg',
+      'IMG_20260512_123414.jpg',
+      'IMG_20260512_123429.jpg',
+      'IMG_20260512_123434.jpg',
+      'IMG_20260512_123436.jpg',
+      'IMG_20260512_123444.jpg',
+      'IMG_20260512_123447.jpg',
+      'IMG_20260512_123505.jpg',
+      'IMG_20260512_123520.jpg',
+      'IMG_20260512_123521.jpg',
+      'IMG_20260512_123527.jpg',
+      'IMG_20260512_123549.jpg',
+      'IMG_20260512_123603.jpg',
+      'IMG_20260512_123607.jpg',
+      'IMG_20260512_123609.jpg',
+      'IMG_20260512_123632.jpg',
+      'IMG_20260512_123638.jpg',
+      'IMG_20260512_123707.jpg',
+      'IMG_20260512_123714.jpg',
+      'IMG_20260512_123724.jpg',
+      'IMG_20260512_123735.jpg',
+      'IMG_20260512_123739.jpg',
+      'IMG_20260512_123806.jpg',
+      'IMG_20260512_123824.jpg',
+      'IMG_20260512_123833.jpg',
+      'IMG_20260512_123845.jpg',
+      'IMG_20260512_123851.jpg',
+      'IMG_20260512_123854.jpg',
+      'IMG_20260512_123859.jpg',
+      'IMG_20260512_123914.jpg',
+      'IMG_20260512_123919.jpg',
+      'IMG_20260512_123931.jpg',
+      'IMG_20260512_124012.jpg',
+      'IMG_20260512_124020.jpg',
+      'IMG_20260512_124024.jpg',
+      'IMG_20260512_124038.jpg',
+      'IMG_20260512_124043.jpg',
+      'IMG_20260512_124049.jpg',
+      'IMG_20260512_124109.jpg',
+      'IMG_20260512_124121.jpg',
+      'IMG_20260512_124123.jpg',
+      'IMG_20260512_124125.jpg',
+      'IMG_20260512_124133.jpg',
+      'IMG_20260512_124137.jpg',
+      'IMG_20260512_124142.jpg',
+      'IMG_20260512_124146.jpg',
+      'IMG_20260512_124149.jpg',
+      'IMG_20260512_124152.jpg',
+      'IMG_20260512_124231.jpg',
+      'IMG_20260512_124257.jpg',
+      'IMG_20260512_124259.jpg',
+      'IMG_20260512_124357.jpg'
+    ]
+  },
+  {
+    id: 'biome_tropical',
+    title: '7. Inside: Tropical & Hawaiian',
+    desc: 'Hibiscus, lagoons, Hawaiian infographics, bamboo, Orangutan sculpture',
+    images: [
+      'IMG_20260512_124402.jpg',
+      'IMG_20260512_124414.jpg',
+      'IMG_20260512_124420.jpg',
+      'IMG_20260512_124426.jpg',
+      'IMG_20260512_124432.jpg',
+      'IMG_20260512_124437.jpg',
+      'IMG_20260512_124441.jpg',
+      'IMG_20260512_124446.jpg',
+      'IMG_20260512_124451.jpg',
+      'IMG_20260512_124456.jpg',
+      'IMG_20260512_124948.jpg',
+      'IMG_20260512_124952.jpg',
+      'IMG_20260512_125029.jpg',
+      'IMG_20260512_125040.jpg',
+      'IMG_20260512_125045.jpg',
+      'IMG_20260512_125049.jpg',
+      'IMG_20260512_125115.jpg',
+      'IMG_20260512_125126.jpg',
+      'IMG_20260512_125133.jpg',
+      'IMG_20260512_125158.jpg',
+      'IMG_20260512_125220.jpg',
+      'IMG_20260512_125226.jpg',
+      'IMG_20260512_125232.jpg',
+      'IMG_20260512_125431.jpg',
+      'IMG_20260512_125435.jpg',
+      'IMG_20260512_125514.jpg',
+      'IMG_20260512_125543.jpg',
+      'IMG_20260512_125546.jpg',
+      'IMG_20260512_125552.jpg',
+      'IMG_20260512_125559.jpg',
+      'IMG_20260512_125604.jpg',
+      'IMG_20260512_125608.jpg',
+      'IMG_20260512_125634.jpg',
+      'IMG_20260512_125636.jpg',
+      'IMG_20260512_125638.jpg',
+      'IMG_20260512_125641.jpg',
+      'IMG_20260512_125645.jpg',
+      'IMG_20260512_125648.jpg',
+      'IMG_20260512_125650.jpg',
+      'IMG_20260512_125656.jpg',
+      'IMG_20260512_125705.jpg',
+      'IMG_20260512_125719.jpg',
+      'IMG_20260512_125735.jpg',
+      'IMG_20260512_125742.jpg',
+      'IMG_20260512_125808.jpg',
+      'IMG_20260512_125812.jpg',
+      'IMG_20260512_125834.jpg',
+      'IMG_20260512_125840.jpg',
+      'IMG_20260512_125854.jpg',
+      'IMG_20260512_125920.jpg',
+      'IMG_20260512_125928.jpg',
+      'IMG_20260512_125931.jpg',
+      'IMG_20260512_125935.jpg',
+      'IMG_20260512_125937.jpg',
+      'IMG_20260512_125942.jpg',
+      'IMG_20260512_125944.jpg',
+      'IMG_20260512_125949.jpg',
+      'IMG_20260512_130030.jpg',
+      'IMG_20260512_130058.jpg',
+      'IMG_20260512_130114.jpg',
+      'IMG_20260512_130143.jpg',
+      'IMG_20260512_130147.jpg',
+      'IMG_20260512_130149.jpg',
+      'IMG_20260512_130153.jpg',
+      'IMG_20260512_130328.jpg',
+      'IMG_20260512_130330.jpg',
+      'IMG_20260512_130335.jpg',
+      'IMG_20260512_130359.jpg',
+      'IMG_20260512_130405.jpg'
+    ]
+  },
+  {
+    id: 'tea_seed',
+    title: '8. Tea Break & Worlds Largest Seed',
+    desc: 'Rest, Coco De Mer seed, the sexy shot',
+    images: [
+      'IMG_20260512_133131.jpg',
+      'IMG_20260512_133136.jpg',
+      'IMG_20260512_133535.jpg',
+      'IMG_20260512_133537.jpg',
+      'IMG_20260512_133541.jpg',
+      'IMG_20260512_133607.jpg',
+      'IMG_20260512_133608.jpg',
+      'IMG_20260512_133826.jpg',
+      'IMG_20260512_133910.jpg',
+      'IMG_20260512_134020.jpg',
+      'IMG_20260512_134040.jpg',
+      'IMG_20260512_134051.jpg',
+      'IMG_20260512_134056.jpg',
+      'IMG_20260512_134101.jpg',
+      'IMG_20260512_134131.jpg',
+      'IMG_20260512_134137.jpg'
+    ]
+  },
+  {
+    id: 'mediterranean',
+    title: '9. Mediterranean & Outdoor Trail',
+    desc: 'Olive trees, herbs, South Africa Fynbos, Australian Kwongan, art',
+    images: [
+      'IMG_20260512_134216.jpg',
+      'IMG_20260512_134227.jpg',
+      'IMG_20260512_134230.jpg',
+      'IMG_20260512_134239.jpg',
+      'IMG_20260512_134242.jpg',
+      'IMG_20260512_134246.jpg',
+      'IMG_20260512_134249.jpg',
+      'IMG_20260512_134253.jpg',
+      'IMG_20260512_134310.jpg',
+      'IMG_20260512_134325.jpg',
+      'IMG_20260512_134332.jpg',
+      'IMG_20260512_134343.jpg',
+      'IMG_20260512_134358.jpg',
+      'IMG_20260512_134401.jpg',
+      'IMG_20260512_134413.jpg',
+      'IMG_20260512_134423.jpg',
+      'IMG_20260512_134431.jpg',
+      'IMG_20260512_134434.jpg',
+      'IMG_20260512_134452.jpg',
+      'IMG_20260512_134510.jpg',
+      'IMG_20260512_134518.jpg',
+      'IMG_20260512_134538.jpg',
+      'IMG_20260512_134541.jpg',
+      'IMG_20260512_134546.jpg',
+      'IMG_20260512_134549.jpg',
+      'IMG_20260512_134602.jpg',
+      'IMG_20260512_134610.jpg',
+      'IMG_20260512_134615.jpg',
+      'IMG_20260512_134623.jpg',
+      'IMG_20260512_134654.jpg',
+      'IMG_20260512_134656.jpg',
+      'IMG_20260512_134659.jpg',
+      'IMG_20260512_134713.jpg',
+      'IMG_20260512_134734.jpg',
+      'IMG_20260512_134752.jpg',
+      'IMG_20260512_134755.jpg',
+      'IMG_20260512_134812.jpg',
+      'IMG_20260512_134819.jpg',
+      'IMG_20260512_134822.jpg',
+      'IMG_20260512_134825.jpg',
+      'IMG_20260512_134829.jpg',
+      'IMG_20260512_134832.jpg',
+      'IMG_20260512_134839.jpg',
+      'IMG_20260512_134842.jpg',
+      'IMG_20260512_134854.jpg',
+      'IMG_20260512_134859.jpg',
+      'IMG_20260512_134905.jpg',
+      'IMG_20260512_134917.jpg',
+      'IMG_20260512_134923.jpg',
+      'IMG_20260512_134928.jpg',
+      'IMG_20260512_134932.jpg',
+      'IMG_20260512_134940.jpg',
+      'IMG_20260512_134945.jpg',
+      'IMG_20260512_134949.jpg',
+      'IMG_20260512_134953.jpg',
+      'IMG_20260512_134957.jpg',
+      'IMG_20260512_135007.jpg',
+      'IMG_20260512_135012.jpg',
+      'IMG_20260512_135026.jpg',
+      'IMG_20260512_135034.jpg',
+      'IMG_20260512_135059.jpg',
+      'IMG_20260512_135107.jpg',
+      'IMG_20260512_135113.jpg',
+      'IMG_20260512_135115.jpg',
+      'IMG_20260512_135120.jpg',
+      'IMG_20260512_135124.jpg',
+      'IMG_20260512_135131.jpg',
+      'IMG_20260512_135138.jpg',
+      'IMG_20260512_135143.jpg',
+      'IMG_20260512_135155.jpg',
+      'IMG_20260512_135202.jpg',
+      'IMG_20260512_135209.jpg',
+      'IMG_20260512_135219.jpg',
+      'IMG_20260512_135223.jpg',
+      'IMG_20260512_135231.jpg',
+      'IMG_20260512_135235.jpg',
+      'IMG_20260512_135244.jpg',
+      'IMG_20260512_135249.jpg',
+      'IMG_20260512_135252.jpg',
+      'IMG_20260512_135255.jpg',
+      'IMG_20260512_135259.jpg',
+      'IMG_20260512_135301.jpg',
+      'IMG_20260512_135315.jpg',
+      'IMG_20260512_135333.jpg',
+      'IMG_20260512_135409.jpg',
+      'IMG_20260512_135417.jpg',
+      'IMG_20260512_135419.jpg',
+      'IMG_20260512_135432.jpg',
+      'IMG_20260512_135441.jpg',
+      'IMG_20260512_135455.jpg',
+      'IMG_20260512_135515.jpg',
+      'IMG_20260512_135519.jpg',
+      'IMG_20260512_135530.jpg',
+      'IMG_20260512_135533.jpg',
+      'IMG_20260512_135536.jpg',
+      'IMG_20260512_135545.jpg',
+      'IMG_20260512_135551.jpg',
+      'IMG_20260512_135601.jpg',
+      'IMG_20260512_135609.jpg',
+      'IMG_20260512_135616.jpg',
+      'IMG_20260512_135618.jpg',
+      'IMG_20260512_135622.jpg',
+      'IMG_20260512_135626.jpg',
+      'IMG_20260512_135634.jpg',
+      'IMG_20260512_135637.jpg',
+      'IMG_20260512_135641.jpg',
+      'IMG_20260512_135645.jpg',
+      'IMG_20260512_135648.jpg',
+      'IMG_20260512_135653.jpg',
+      'IMG_20260512_135705.jpg',
+      'IMG_20260512_135713.jpg',
+      'IMG_20260512_135723.jpg',
+      'IMG_20260512_135728.jpg',
+      'IMG_20260512_135733.jpg',
+      'IMG_20260512_135739.jpg',
+      'IMG_20260512_135750.jpg',
+      'IMG_20260512_135758.jpg',
+      'IMG_20260512_135800.jpg',
+      'IMG_20260512_135802.jpg',
+      'IMG_20260512_135806.jpg',
+      'IMG_20260512_135812.jpg',
+      'IMG_20260512_135815.jpg',
+      'IMG_20260512_135820.jpg',
+      'IMG_20260512_135823.jpg',
+      'IMG_20260512_135828.jpg',
+      'IMG_20260512_135835.jpg',
+      'IMG_20260512_135852.jpg',
+      'IMG_20260512_135857.jpg',
+      'IMG_20260512_135903.jpg',
+      'IMG_20260512_135905.jpg',
+      'IMG_20260512_135912.jpg',
+      'IMG_20260512_135918.jpg',
+      'IMG_20260512_135925.jpg',
+      'IMG_20260512_135927.jpg',
+      'IMG_20260512_135935.jpg',
+      'IMG_20260512_135949.jpg',
+      'IMG_20260512_135956.jpg',
+      'IMG_20260512_140008.jpg',
+      'IMG_20260512_140009.jpg',
+      'IMG_20260512_140018.jpg',
+      'IMG_20260512_140020.jpg',
+      'IMG_20260512_140028.jpg',
+      'IMG_20260512_140034.jpg',
+      'IMG_20260512_140042.jpg',
+      'IMG_20260512_140046.jpg',
+      'IMG_20260512_140134.jpg',
+      'IMG_20260512_140139.jpg'
+    ]
+  },
+  {
+    id: 'myth_return',
+    title: '10. Performance & Myth Woods',
+    desc: 'Time performance, mythology, pollination trail return',
+    images: [
+      'IMG_20260512_140644.jpg',
+      'IMG_20260512_140731.jpg',
+      'IMG_20260512_140748.jpg',
+      'IMG_20260512_140832.jpg',
+      'IMG_20260512_140833.jpg',
+      'IMG_20260512_140909.jpg',
+      'IMG_20260512_140914.jpg',
+      'IMG_20260512_140929.jpg',
+      'IMG_20260512_140947.jpg',
+      'IMG_20260512_140950.jpg',
+      'IMG_20260512_141131.jpg',
+      'IMG_20260512_141301.jpg'
+    ]
+  },
+  {
+    id: 'core_departure',
+    title: '11. The Core & Departure',
+    desc: 'Japanese waterway, microbiome museum, smoke rings, cosmic egg',
+    images: [
+      'IMG_20260512_151001.jpg',
+      'IMG_20260512_151004.jpg',
+      'IMG_20260512_151005.jpg'
+    ]
+  }
+];
+
+const container = document.getElementById('sections');
+const trashZone = document.getElementById('trash-zone');
+let draggedEl = null;
+let draggedImg = null;
+
+function updateCounts() {
+  document.querySelectorAll('.section').forEach(sec => {
+    const count = sec.querySelectorAll('.thumb').length;
+    sec.querySelector('.count').textContent = `(${count})`;
+  });
+}
+
+function createThumb(filename) {
+  const div = document.createElement('div');
+  div.className = 'thumb';
+  div.draggable = true;
+  div.dataset.filename = filename;
+  div.innerHTML = `
+    <img src="${BASE}${filename}" alt="${filename}" loading="lazy" />
+    <button class="delete-btn" title="Delete">&times;</button>
+    <div class="filename">${filename.replace('.jpg','').replace('IMG_20260512_','')}</div>
+  `;
+  div.querySelector('.delete-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    div.remove();
+    updateCounts();
+  });
+  div.addEventListener('dragstart', (e) => {
+    draggedEl = div;
+    draggedImg = filename;
+    div.classList.add('dragging');
+    trashZone.style.display = 'block';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  div.addEventListener('dragend', () => {
+    div.classList.remove('dragging');
+    trashZone.style.display = 'none';
+    trashZone.classList.remove('drag-over');
+    draggedEl = null;
+    draggedImg = null;
+  });
+  return div;
+}
+
+sections.forEach(sec => {
+  const sectionDiv = document.createElement('div');
+  sectionDiv.className = 'section';
+  sectionDiv.dataset.id = sec.id;
+  sectionDiv.innerHTML = `<h2>${sec.title}<span class="count">(${sec.images.length})</span></h2><p class="desc">${sec.desc}</p>`;
+  const grid = document.createElement('div');
+  grid.className = 'gallery-grid';
+  sec.images.forEach(img => grid.appendChild(createThumb(img)));
+
+  grid.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    grid.classList.add('drag-over');
+    const afterEl = getDragAfterElement(grid, e.clientX, e.clientY);
+    if (afterEl) {
+      grid.insertBefore(draggedEl, afterEl);
+    } else {
+      grid.appendChild(draggedEl);
+    }
+  });
+  grid.addEventListener('dragleave', () => grid.classList.remove('drag-over'));
+  grid.addEventListener('drop', (e) => {
+    e.preventDefault();
+    grid.classList.remove('drag-over');
+    updateCounts();
+  });
+
+  sectionDiv.appendChild(grid);
+  container.appendChild(sectionDiv);
+});
+
+trashZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  trashZone.classList.add('drag-over');
+});
+trashZone.addEventListener('dragleave', () => trashZone.classList.remove('drag-over'));
+trashZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  if (draggedEl) { draggedEl.remove(); updateCounts(); }
+  trashZone.classList.remove('drag-over');
+  trashZone.style.display = 'none';
+});
+
+function getDragAfterElement(container, x, y) {
+  const elements = [...container.querySelectorAll('.thumb:not(.dragging)')];
+  return elements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offsetX = x - box.left - box.width / 2;
+    const offsetY = y - box.top - box.height / 2;
+    const offset = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+    if (offset < closest.offset) {
+      return { offset, element: child };
+    }
+    return closest;
+  }, { offset: Number.POSITIVE_INFINITY }).element;
+}
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  const result = {};
+  document.querySelectorAll('.section').forEach(sec => {
+    const id = sec.dataset.id;
+    const imgs = [...sec.querySelectorAll('.thumb')].map(t => t.dataset.filename);
+    result[id] = imgs;
+  });
+  const output = document.getElementById('export-output');
+  output.style.display = 'block';
+  output.textContent = JSON.stringify(result, null, 2);
+  console.log('GALLERY_EXPORT:' + JSON.stringify(result));
+});
+</script>
+</body>
+</html>
