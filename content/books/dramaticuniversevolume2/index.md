@@ -1,7 +1,7 @@
 +++
 authors = ["Josh Fairhead"]
 title = "The Dramatic Universe Vol. 2: The Foundations of Moral Philosophy"
-date = 2026-05-03
+date = 2026-05-04
 description = "A review of John Bennett's Dramatic Universe Volume 2 - the foundations of moral philosophy"
 [taxonomies]
 tags = ["Books"]
