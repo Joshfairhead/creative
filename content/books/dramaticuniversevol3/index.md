@@ -1,7 +1,7 @@
 +++
 authors = ["Josh Fairhead"]
 title = "The Dramatic Universe Vol. 3: Man and His Nature"
-date = 2026-05-03
+date = 2026-05-04
 description = "A review of John Bennett's third volume of The Dramatic Universe"
 [taxonomies]
 tags = ["Books"]
