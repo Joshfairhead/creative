@@ -13,6 +13,7 @@
         {% endfor %}
     </div>
     {% for page in pages %}
+    {% if page.extra.hide_from_home %}{% continue %}{% endif %}
     <a href="{{ page.permalink }}" class="content-card"
        data-tags="{{ page.taxonomies.tags | default(value=[]) | join(sep=',') }}">
         {% if page.extra.card or page.extra.banner %}
