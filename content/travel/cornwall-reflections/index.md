@@ -10,6 +10,7 @@ tags = ["Travel"]
 
 [extra]
 card = "existential-pattern.png"
+hide_from_home = true
 styles = ["travel-gallery.css"]
 scripts = ["travel-lightbox.js"]
 +++
