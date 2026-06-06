@@ -1,0 +1,23 @@
+name: Trigger downstream deploys
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+
+jobs:
+  trigger-deploys:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger blog deploy
+        if: env.NETLIFY_BLOG_BUILD_HOOK != ''
+        env:
+          NETLIFY_BLOG_BUILD_HOOK: ${{ secrets.NETLIFY_BLOG_BUILD_HOOK }}
+        run: curl -s -X POST -d '{}' "$NETLIFY_BLOG_BUILD_HOOK"
+
+      - name: Trigger portfolio deploy
+        if: env.NETLIFY_PORTFOLIO_BUILD_HOOK != ''
+        env:
+          NETLIFY_PORTFOLIO_BUILD_HOOK: ${{ secrets.NETLIFY_PORTFOLIO_BUILD_HOOK }}
+        run: curl -s -X POST -d '{}' "$NETLIFY_PORTFOLIO_BUILD_HOOK"

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gallery Editor - Heligan Gardens</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+h1 { margin-bottom: 20px; text-align: center; }
+.section { background: #16213e; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+.section h2 { margin-bottom: 4px; font-size: 1.1em; color: #a8d8ea; }
+.section .desc { font-size: 0.85em; color: #888; margin-bottom: 12px; }
+.gallery-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px;
+  border: 2px dashed #333; border-radius: 6px; padding: 8px;
+  transition: border-color 0.2s;
+}
+.gallery-grid.drag-over { border-color: #a8d8ea; background: rgba(168,216,234,0.05); }
+.thumb {
+  position: relative; width: 120px; height: 90px; border-radius: 4px;
+  overflow: hidden; cursor: grab; transition: transform 0.15s, opacity 0.15s;
+  border: 2px solid transparent;
+}
+.thumb:hover { border-color: #a8d8ea; }
+.thumb.dragging { opacity: 0.3; transform: scale(0.95); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.thumb .delete-btn {
+  position: absolute; top: 2px; right: 2px; background: rgba(255,50,50,0.85);
+  color: white; border: none; border-radius: 50%; width: 20px; height: 20px;
+  font-size: 12px; cursor: pointer; display: none; align-items: center;
+  justify-content: center; line-height: 1;
+}
+.thumb:hover .delete-btn { display: flex; }
+.thumb .filename {
+  position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7);
+  font-size: 9px; padding: 2px 4px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+#trash-zone {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #cc3333; color: white; padding: 16px 40px; border-radius: 12px;
+  font-size: 1.2em; font-weight: bold; display: none; z-index: 100;
+  border: 3px dashed #ff6666; transition: background 0.2s;
+}
+#trash-zone.drag-over { background: #ff0000; }
+#export-btn {
+  display: block; margin: 30px auto; padding: 14px 40px;
+  background: #4CAF50; color: white; border: none; border-radius: 8px;
+  font-size: 1.1em; cursor: pointer;
+}
+#export-btn:hover { background: #45a049; }
+#export-output { display: none; white-space: pre-wrap; background: #0d1117; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; margin-top: 20px; max-height: 400px; overflow: auto; }
+.count { color: #888; font-size: 0.85em; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Heligan Gardens Gallery Editor</h1>
+<p style="text-align:center;margin-bottom:20px;color:#888;">Drag photos between sections to move them. Click the red X to delete. Click Export when done.</p>
+
+<div id="sections"></div>
+
+<div id="trash-zone">Drop here to delete</div>
+
+<button id="export-btn">Export arrangement</button>
+<pre id="export-output"></pre>
+
+
+<script>
+const BASE = '/travel/heligan-gardens/gallery/';
+const sections = [
+  {
+    id: "section_1",
+    title: "1. Entrance & Fuchsia bush",
+    desc: "Arrival, entrance, and the giant Fuchsia",
+    images: [
+      "IMG_20260513_112134.webp",
+      "IMG_20260513_112415.webp",
+      "IMG_20260513_112613.webp",
+      "IMG_20260513_113105.webp",
+      "IMG_20260513_113119.webp",
+    ]
+  },
+  {
+    id: "section_2",
+    title: "2. Greenhouses & vegetable gardens",
+    desc: "Greenhouses, potting sheds, vegetable gardens, gardeners' quarters",
+    images: [
+      "IMG_20260513_113156.webp",
+      "IMG_20260513_113215.webp",
+      "IMG_20260513_113220.webp",
+      "IMG_20260513_113227.webp",
+      "IMG_20260513_113423.webp",
+      "IMG_20260513_113442.webp",
+      "IMG_20260513_113451.webp",
+      "IMG_20260513_113557.webp",
+      "IMG_20260513_113605.webp",
+      "IMG_20260513_113954.webp",
+      "IMG_20260513_114009.webp",
+      "IMG_20260513_114103.webp",
+      "IMG_20260513_114123.webp",
+      "IMG_20260513_114132.webp",
+      "IMG_20260513_114143.webp",
+      "IMG_20260513_114201.webp",
+      "IMG_20260513_114206.webp",
+      "IMG_20260513_114240.webp",
+      "IMG_20260513_114253.webp",
+      "IMG_20260513_114305.webp",
+      "IMG_20260513_114400.webp",
+    ]
+  },
+  {
+    id: "section_3",
+    title: "3. Animal sheds / farm",
+    desc: "Donkeys, goats, animal sheds",
+    images: [
+      "IMG_20260513_114607.webp",
+      "IMG_20260513_114753.webp",
+      "IMG_20260513_114800.webp",
+    ]
+  },
+  {
+    id: "section_4",
+    title: "4. Jungle & rope bridge",
+    desc: "Playground, jungle paths, rope bridge, rhubarb",
+    images: [
+      "IMG_20260513_114901.webp",
+      "IMG_20260513_115104.webp",
+      "IMG_20260513_115210.webp",
+      "IMG_20260513_115749.webp",
+      "IMG_20260513_115847.webp",
+      "IMG_20260513_115940.webp",
+      "IMG_20260513_120008.webp",
+      "IMG_20260513_120051.webp",
+      "IMG_20260513_120112.webp",
+      "IMG_20260513_120234.webp",
+      "IMG_20260513_120451.webp",
+      "IMG_20260513_120454.webp",
+      "IMG_20260513_120549.webp",
+      "IMG_20260513_120613.webp",
+      "IMG_20260513_120617.webp",
+      "IMG_20260513_120623.webp",
+      "IMG_20260513_120649.webp",
+      "IMG_20260513_120815.webp",
+      "IMG_20260513_120835.webp",
+      "IMG_20260513_120848.webp",
+    ]
+  },
+  {
+    id: "section_5",
+    title: "5. Valley trail, fox & sculptures",
+    desc: "Wishing log, fox sculpture, viewing platform, Grey Lady, Mud Maid, Cornish wall",
+    images: [
+      "IMG_20260513_121703.webp",
+      "IMG_20260513_121707.webp",
+      "IMG_20260513_121806.webp",
+      "IMG_20260513_121814.webp",
+      "IMG_20260513_121941.webp",
+      "IMG_20260513_122040.webp",
+      "IMG_20260513_122055.webp",
+      "IMG_20260513_122228.webp",
+      "IMG_20260513_122242.webp",
+      "IMG_20260513_122452.webp",
+      "IMG_20260513_122603.webp",
+      "IMG_20260513_122724.webp",
+      "IMG_20260513_122732.webp",
+      "IMG_20260513_122904.webp",
+      "IMG_20260513_122909.webp",
+      "IMG_20260513_123135.webp",
+      "IMG_20260513_123514.webp",
+      "IMG_20260513_123518.webp",
+      "IMG_20260513_123611.webp",
+      "IMG_20260513_123629.webp",
+      "IMG_20260513_123644.webp",
+      "IMG_20260513_123658.webp",
+      "IMG_20260513_123731.webp",
+      "IMG_20260513_123834.webp",
+      "IMG_20260513_123850.webp",
+      "IMG_20260513_123941.webp",
+      "IMG_20260513_124045.webp",
+      "IMG_20260513_124048.webp",
+      "IMG_20260513_124055.webp",
+      "IMG_20260513_124059.webp",
+      "IMG_20260513_124131.webp",
+      "IMG_20260513_124150.webp",
+      "IMG_20260513_124219.webp",
+      "IMG_20260513_124237.webp",
+      "IMG_20260513_124319.webp",
+      "IMG_20260513_124320.webp",
+      "IMG_20260513_124352.webp",
+      "IMG_20260513_124358.webp",
+    ]
+  },
+  {
+    id: "section_6",
+    title: "6. Walled gardens & gardener quarters",
+    desc: "Ravine, walled gardens, gardener's quarters, Steward's House",
+    images: [
+      "IMG_20260513_124411.webp",
+      "IMG_20260513_124426.webp",
+      "IMG_20260513_124429.webp",
+      "IMG_20260513_124538.webp",
+      "IMG_20260513_124629.webp",
+      "IMG_20260513_124725.webp",
+      "IMG_20260513_124740.webp",
+      "IMG_20260513_125403.webp",
+      "IMG_20260513_125433.webp",
+      "IMG_20260513_125440.webp",
+      "IMG_20260513_125501.webp",
+      "IMG_20260513_125504.webp",
+      "IMG_20260513_125506.webp",
+      "IMG_20260513_125512.webp",
+      "IMG_20260513_125519.webp",
+      "IMG_20260513_125535.webp",
+      "IMG_20260513_125549.webp",
+      "IMG_20260513_125614.webp",
+      "IMG_20260513_125619.webp",
+      "IMG_20260513_125818.webp",
+      "IMG_20260513_125838.webp",
+      "IMG_20260513_125902.webp",
+      "IMG_20260513_125915.webp",
+      "IMG_20260513_125946.webp",
+      "IMG_20260513_125956.webp",
+      "IMG_20260513_130027.webp",
+      "IMG_20260513_130121.webp",
+      "IMG_20260513_130153.webp",
+      "IMG_20260513_130235.webp",
+      "IMG_20260513_130248.webp",
+      "IMG_20260513_130241.webp",
+      "IMG_20260513_130244.webp",
+      "IMG_20260513_130356.webp",
+      "IMG_20260513_130414.webp",
+      "IMG_20260513_130419.webp",
+      "IMG_20260513_131002.webp",
+      "IMG_20260513_130427.webp",
+      "IMG_20260513_131508.webp",
+      "IMG_20260513_130508.webp",
+      "IMG_20260513_130520.webp",
+      "IMG_20260513_130602.webp",
+      "IMG_20260513_130624.webp",
+      "IMG_20260513_130643.webp",
+      "IMG_20260513_130857.webp",
+      "IMG_20260513_130949.webp",
+      "IMG_20260513_130855.webp",
+      "IMG_20260513_131512.webp",
+      "IMG_20260513_131006.webp",
+      "IMG_20260513_131535.webp",
+    ]
+  },
+  {
+    id: "section_7",
+    title: "7. Art exhibition, bird sanctuary, trails & train",
+    desc: "Future of nature exhibition, bird sanctuary, thrush, woodland trails, train",
+    images: [
+      "IMG_20260513_131621.webp",
+      "IMG_20260513_131631.webp",
+      "IMG_20260513_131638.webp",
+      "IMG_20260513_131648.webp",
+      "IMG_20260513_131656.webp",
+      "IMG_20260513_131709.webp",
+      "IMG_20260513_131726.webp",
+      "IMG_20260513_131733.webp",
+      "IMG_20260513_131742.webp",
+      "IMG_20260513_131759.webp",
+      "IMG_20260513_131804.webp",
+      "IMG_20260513_131838.webp",
+      "IMG_20260513_131847.webp",
+      "IMG_20260513_131858.webp",
+      "IMG_20260513_131900.webp",
+      "IMG_20260513_131923.webp",
+      "IMG_20260513_131927.webp",
+      "IMG_20260513_131930.webp",
+      "IMG_20260513_131944.webp",
+      "IMG_20260513_131947.webp",
+      "IMG_20260513_132000.webp",
+      "IMG_20260513_132009.webp",
+      "IMG_20260513_132019.webp",
+      "IMG_20260513_132025.webp",
+      "IMG_20260513_132053.webp",
+      "IMG_20260513_132057.webp",
+      "IMG_20260513_132121.webp",
+      "IMG_20260513_132124.webp",
+      "IMG_20260513_132151.webp",
+      "IMG_20260513_132159.webp",
+      "IMG_20260513_132214.webp",
+      "IMG_20260513_132218.webp",
+      "IMG_20260513_132233.webp",
+      "IMG_20260513_132239.webp",
+      "IMG_20260513_132251.webp",
+      "IMG_20260513_132254.webp",
+      "IMG_20260513_132339.webp",
+      "IMG_20260513_132656.webp",
+      "IMG_20260513_133301.webp",
+      "IMG_20260513_133403.webp",
+      "00000IMG_00000_BURST20260513142037_COVER.webp",
+      "IMG_20260513_142925.webp",
+      "IMG_20260513_143046.webp",
+      "IMG_20260513_143136.webp",
+      "IMG_20260513_143359.webp",
+      "IMG_20260513_143641.webp",
+      "IMG_20260513_143839.webp",
+      "IMG_20260513_144028.webp",
+      "IMG_20260513_144237.webp",
+      "IMG_20260513_145024.webp",
+      "IMG_20260513_144833.webp",
+      "IMG_20260513_150059.webp",
+    ]
+  },
+];
+
+const container = document.getElementById('sections');
+const trashZone = document.getElementById('trash-zone');
+let draggedEl = null;
+let draggedImg = null;
+
+function updateCounts() {
+  document.querySelectorAll('.section').forEach(sec => {
+    const count = sec.querySelectorAll('.thumb').length;
+    sec.querySelector('.count').textContent = `(${count})`;
+  });
+}
+
+function createThumb(filename) {
+  const div = document.createElement('div');
+  div.className = 'thumb';
+  div.draggable = true;
+  div.dataset.filename = filename;
+  div.innerHTML = `
+    <img src="${BASE}${filename}" alt="${filename}" loading="lazy" />
+    <button class="delete-btn" title="Delete">&times;</button>
+    <div class="filename">${filename.replace('.webp','').replace('.webp','').replace('IMG_20260513_','')}</div>
+  `;
+  div.querySelector('.delete-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    div.remove();
+    updateCounts();
+  });
+  div.addEventListener('dragstart', (e) => {
+    draggedEl = div;
+    draggedImg = filename;
+    div.classList.add('dragging');
+    trashZone.style.display = 'block';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  div.addEventListener('dragend', () => {
+    div.classList.remove('dragging');
+    trashZone.style.display = 'none';
+    trashZone.classList.remove('drag-over');
+    draggedEl = null;
+    draggedImg = null;
+  });
+  return div;
+}
+
+sections.forEach(sec => {
+  const sectionDiv = document.createElement('div');
+  sectionDiv.className = 'section';
+  sectionDiv.dataset.id = sec.id;
+  sectionDiv.innerHTML = `<h2>${sec.title}<span class="count">(${sec.images.length})</span></h2><p class="desc">${sec.desc}</p>`;
+  const grid = document.createElement('div');
+  grid.className = 'gallery-grid';
+  sec.images.forEach(img => grid.appendChild(createThumb(img)));
+
+  grid.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    grid.classList.add('drag-over');
+    const afterEl = getDragAfterElement(grid, e.clientX, e.clientY);
+    if (afterEl) {
+      grid.insertBefore(draggedEl, afterEl);
+    } else {
+      grid.appendChild(draggedEl);
+    }
+  });
+  grid.addEventListener('dragleave', () => grid.classList.remove('drag-over'));
+  grid.addEventListener('drop', (e) => {
+    e.preventDefault();
+    grid.classList.remove('drag-over');
+    updateCounts();
+  });
+
+  sectionDiv.appendChild(grid);
+  container.appendChild(sectionDiv);
+});
+
+trashZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  trashZone.classList.add('drag-over');
+});
+trashZone.addEventListener('dragleave', () => trashZone.classList.remove('drag-over'));
+trashZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  if (draggedEl) { draggedEl.remove(); updateCounts(); }
+  trashZone.classList.remove('drag-over');
+  trashZone.style.display = 'none';
+});
+
+function getDragAfterElement(container, x, y) {
+  const elements = [...container.querySelectorAll('.thumb:not(.dragging)')];
+  return elements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offsetX = x - box.left - box.width / 2;
+    const offsetY = y - box.top - box.height / 2;
+    const offset = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+    if (offset < closest.offset) {
+      return { offset, element: child };
+    }
+    return closest;
+  }, { offset: Number.POSITIVE_INFINITY }).element;
+}
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  const result = {};
+  document.querySelectorAll('.section').forEach(sec => {
+    const id = sec.dataset.id;
+    const imgs = [...sec.querySelectorAll('.thumb')].map(t => t.dataset.filename);
+    result[id] = imgs;
+  });
+  const output = document.getElementById('export-output');
+  output.style.display = 'block';
+  output.textContent = JSON.stringify(result, null, 2);
+  console.log('GALLERY_EXPORT:' + JSON.stringify(result));
+});
+</script>
+</body>
+</html>
