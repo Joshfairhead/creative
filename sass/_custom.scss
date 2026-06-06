@@ -200,6 +200,7 @@ main {
 /* Book card variant */
 .content-card--book .content-card__banner {
     background: var(--fg-muted-1);
+    aspect-ratio: 2 / 3;
 }
 
 .content-card--book .content-card__banner img {
