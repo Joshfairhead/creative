@@ -46,12 +46,15 @@
 
 /* Gallery images */
 .travel-gallery img {
+    display: inline-block;
     width: 100%;
     height: auto;
     border-radius: 8px;
     cursor: pointer;
     transition: opacity 0.2s ease;
-    margin-bottom: 0;
+    margin: 0;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 .travel-gallery img:hover {
@@ -72,7 +75,7 @@
     }
     
     .travel-gallery img {
-        height: 280px;
+        height: auto;
     }
 }
 
@@ -80,15 +83,15 @@
     .travel-gallery {
         grid-template-columns: 1fr;
     }
-    
+
     .gallery-2,
     .gallery-3,
     .gallery-4 {
         grid-template-columns: 1fr;
     }
-    
+
     .travel-gallery img {
-        height: 300px;
+        height: auto;
     }
 }
 
@@ -194,7 +197,9 @@
 
 /* Gallery sizing classes */
 .gallery-resized img {
-    height: 280px !important;
+    aspect-ratio: 4 / 3;
+    height: auto !important;
+    width: 100%;
     object-fit: cover;
 }
 
