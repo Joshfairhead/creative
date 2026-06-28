@@ -4,6 +4,7 @@ set -euo pipefail
 # Content sections for each view
 BLOG_SECTIONS="books music study travel"
 PORTFOLIO_SECTIONS="multimedia recordings software tech-management timeline"
+TEA_SECTIONS="tea"
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="$PROJECT_DIR/dist"
@@ -66,8 +67,12 @@ build_view "blog" "config.blog.toml" "$BLOG_SECTIONS" "Blog"
 # Build portfolio (subset)
 build_view "portfolio" "config.portfolio.toml" "$PORTFOLIO_SECTIONS" "Portfolio"
 
+# Build tea (subset)
+build_view "tea" "config.tea.toml" "$TEA_SECTIONS" "Tea"
+
 echo ""
 echo "All views built in dist/"
-echo "  creative: $(find "$BUILD_DIR/creative" -name '*.html' | wc -l | tr -d ' ') pages"
-echo "  blog:     $(find "$BUILD_DIR/blog" -name '*.html' | wc -l | tr -d ' ') pages"
+echo "  creative:  $(find "$BUILD_DIR/creative" -name '*.html' | wc -l | tr -d ' ') pages"
+echo "  blog:      $(find "$BUILD_DIR/blog" -name '*.html' | wc -l | tr -d ' ') pages"
 echo "  portfolio: $(find "$BUILD_DIR/portfolio" -name '*.html' | wc -l | tr -d ' ') pages"
+echo "  tea:       $(find "$BUILD_DIR/tea" -name '*.html' | wc -l | tr -d ' ') pages"

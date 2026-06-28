@@ -3,16 +3,18 @@ set -euo pipefail
 
 BLOG_SECTIONS="books music study travel"
 PORTFOLIO_SECTIONS="multimedia recordings software tech-management timeline"
+TEA_SECTIONS="tea"
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 usage() {
-    echo "Usage: $0 <creative|blog|portfolio>"
+    echo "Usage: $0 <creative|blog|portfolio|tea>"
     echo ""
     echo "Serves a filtered view of the site locally."
     echo "  creative  - all content (port 1111)"
     echo "  blog      - books, music, study, travel (port 1112)"
     echo "  portfolio - multimedia, recordings, software, tech-management, timeline (port 1113)"
+    echo "  tea       - tea (port 1114)"
     exit 1
 }
 
@@ -34,6 +36,11 @@ case "$VIEW" in
         PORT=1113
         SECTIONS="$PORTFOLIO_SECTIONS"
         TITLE="Portfolio"
+        ;;
+    tea)
+        PORT=1114
+        SECTIONS="$TEA_SECTIONS"
+        TITLE="Tea"
         ;;
     *)
         usage
