@@ -116,74 +116,92 @@ main {
     }
 }
 
-/* Tag filter: word cloud in left margin on desktop */
-.tag-filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    padding: 0;
-    margin-bottom: 1rem;
+/* Sort + Filter nav dropdowns (homepage only) */
+#sort-menu .icon.sort-icon {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M4 0L0 5h3v6h2V5h3zm8 16L8 11h3V5h2v6h3z'/%3E%3C/svg%3E");
+    -webkit-mask-image: var(--icon);
+    mask-image: var(--icon);
 }
 
-@media (min-width: 769px) {
-    .tag-filter-bar {
-        position: absolute;
-        top: 0;
-        right: calc(100% + 1rem);
-        width: 240px;
-        margin-bottom: 0;
-        justify-content: flex-end;
-    }
-
-    .content-card-grid {
-        position: relative;
-    }
+#filter-menu .icon.filter-icon {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M.5 1A.5.5 0 0 1 1 .5h14a.5.5 0 0 1 .4.8L10 8.6V14a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 16V8.6L.6 1.3A.5.5 0 0 1 .5 1z'/%3E%3C/svg%3E");
+    -webkit-mask-image: var(--icon);
+    mask-image: var(--icon);
 }
 
-.tag-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.625rem 0.75rem;
-    border: none;
+#filter-menu .filter-badge {
+    display: inline-block;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.25rem;
+    margin-inline-start: 0.25rem;
     border-radius: 999px;
-    background-color: var(--fg-muted-1);
+    background-color: var(--accent-color);
+    color: var(--contrast-color);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    text-align: center;
+    vertical-align: middle;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.nav-option {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: var(--rounded-corner);
+    background-color: transparent;
     color: var(--fg-muted-4);
-    font-size: var(--font-size-medium, 0.875rem);
-    font-weight: bold;
+    font-size: var(--font-size-medium);
     font-family: inherit;
-    cursor: pointer;
-    transition: var(--transition, 0.2s);
     line-height: 1;
+    cursor: pointer;
+    text-align: left;
     white-space: nowrap;
-    box-shadow: none;
-    text-decoration: none;
+    transition: var(--transition);
 
     &:hover {
         box-shadow: var(--edge-highlight);
-        background-color: var(--fg-muted-3);
-        color: var(--fg-color);
+        background-color: var(--fg-muted-1);
+        color: var(--fg-muted-5);
     }
 
     &.active {
         box-shadow: var(--edge-highlight);
         background-color: var(--accent-color-alpha);
         color: var(--accent-color);
+    }
 
-        &:hover {
-            background-color: var(--accent-color);
-            color: var(--contrast-color);
+    &--checkbox {
+        input[type="checkbox"] {
+            accent-color: var(--accent-color);
+            margin: 0;
         }
     }
 
-    &:active {
-        transform: var(--active, scale(0.95));
-    }
-}
+    &--clear {
+        font-size: var(--font-size-small);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--fg-muted-3);
+        border-bottom: 1px solid var(--fg-muted-2);
+        border-radius: 0;
+        margin-bottom: 0.25rem;
+        padding-bottom: 0.5rem;
 
-.tag-pill__count {
-    font-size: var(--font-size-small, 0.75rem);
-    opacity: 0.7;
+        &:hover {
+            background-color: transparent;
+            color: var(--accent-color);
+            box-shadow: none;
+        }
+    }
 }
 
 /* Make card tags look clickable */

@@ -1,10 +1,11 @@
 <header id="site-nav">
 	<nav>
 		<a href="#main-content" tabindex="0">Skip to Main Content</a>
+		{%- set is_home = current_url | default(value="/") | trim_end_matches(pat="/") | safe == get_url(path="/") | trim_end_matches(pat='/') | safe -%}
 		<ul>
 			<li id="home">
 				<a href="{{ get_url(path='/') }}"
-					{%- if current_url | default(value="/") | trim_end_matches(pat="/") | safe == get_url(path="/") | trim_end_matches(pat='/') | safe -%}
+					{%- if is_home -%}
 						class="active"
 					{%- endif -%}>
 					<i class="icon"></i>
@@ -20,6 +21,50 @@
 				{%- endif %}
 			</li>
 			{%- endfor %}
+			{%- if is_home -%}
+			{%- set all_tags = get_taxonomy(kind="tags") -%}
+			{%- set show_all_tags = config.extra.show_all_tags | default(value=false) -%}
+			<li id="sort-menu">
+				<details>
+					<summary class="circle" aria-label="Sort" title="Sort">
+						<i class="icon sort-icon"></i>
+					</summary>
+					<ul data-menu="sort">
+						<li><button type="button" class="nav-option active" data-sort="date_desc">Date (newest)</button></li>
+						<li><button type="button" class="nav-option" data-sort="date_asc">Date (oldest)</button></li>
+						<li><button type="button" class="nav-option" data-sort="title_asc">Title A–Z</button></li>
+						<li><button type="button" class="nav-option" data-sort="tag_asc">Tag A–Z</button></li>
+					</ul>
+				</details>
+			</li>
+			<li id="filter-menu">
+				<details>
+					<summary class="circle" aria-label="Filter" title="Filter">
+						<i class="icon filter-icon"></i>
+						<span class="filter-badge" data-active-filter-count></span>
+					</summary>
+					<ul data-menu="filter">
+						<li><button type="button" class="nav-option nav-option--clear" data-clear-filter>Clear all</button></li>
+						{% for term in all_tags.items %}
+							{% set_global show_tag = show_all_tags or term.name == "Tea" %}
+							{% if not show_tag %}
+								{% for p in term.pages %}
+									{% if "/tea/" not in p.path %}{% set_global show_tag = true %}{% endif %}
+								{% endfor %}
+							{% endif %}
+							{% if show_tag %}
+							<li>
+								<label class="nav-option nav-option--checkbox">
+									<input type="checkbox" data-filter-tag="{{ term.name }}">
+									<span>{{ term.name }}</span>
+								</label>
+							</li>
+							{% endif %}
+						{% endfor %}
+					</ul>
+				</details>
+			</li>
+			{%- endif -%}
 		</ul>
 	</nav>
 </header>

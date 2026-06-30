@@ -3,28 +3,14 @@
 {% block content %}
 <h1>{{ section.title }}</h1>
 
-{% set all_tags = get_taxonomy(kind="tags") %}
-{% set show_all_tags = config.extra.show_all_tags | default(value=false) %}
 {% set pages = section.pages %}
 <div class="content-card-grid" id="card-grid">
-    <div id="tag-filter" class="tag-filter-bar">
-        <button class="tag-pill active" data-tag="all">All</button>
-        {% for term in all_tags.items %}
-            {% set_global show_tag = show_all_tags or term.name == "Tea" %}
-            {% if not show_tag %}
-                {% for p in term.pages %}
-                    {% if "/tea/" not in p.path %}{% set_global show_tag = true %}{% endif %}
-                {% endfor %}
-            {% endif %}
-            {% if show_tag %}
-            <button class="tag-pill" data-tag="{{ term.name }}">{{ term.name }}</button>
-            {% endif %}
-        {% endfor %}
-    </div>
     {% for page in pages %}
     {% if page.extra.hide_from_home %}{% continue %}{% endif %}
     <a href="{{ page.permalink }}" class="content-card"
-       data-tags="{{ page.taxonomies.tags | default(value=[]) | join(sep=',') }}">
+       data-tags="{{ page.taxonomies.tags | default(value=[]) | join(sep=',') }}"
+       data-date="{{ page.date | default(value='') }}"
+       data-title="{{ page.title }}">
         {% if page.extra.card or page.extra.banner %}
         <div class="content-card__banner">
             <img src="{{ page.permalink }}{{ page.extra.card | default(value=page.extra.banner) | safe }}" alt="{{ page.title }}" loading="lazy" />
