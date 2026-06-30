@@ -21,3 +21,9 @@ jobs:
         env:
           NETLIFY_PORTFOLIO_BUILD_HOOK: ${{ secrets.NETLIFY_PORTFOLIO_BUILD_HOOK }}
         run: curl -s -X POST -d '{}' "$NETLIFY_PORTFOLIO_BUILD_HOOK"
+
+      - name: Trigger tea deploy
+        if: env.NETLIFY_TEA_BUILD_HOOK != ''
+        env:
+          NETLIFY_TEA_BUILD_HOOK: ${{ secrets.NETLIFY_TEA_BUILD_HOOK }}
+        run: curl -s -X POST -d '{}' "$NETLIFY_TEA_BUILD_HOOK"
