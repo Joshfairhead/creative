@@ -250,7 +250,7 @@ main {
     box-shadow: none;
 }
 
-/* Tea-post image row: side-by-side, no hover zoom */
+/* Tea-post image row: side-by-side, click to enlarge */
 .tea-gallery {
     display: flex;
     flex-wrap: wrap;
@@ -264,14 +264,8 @@ main {
         height: 240px;
         object-fit: cover;
         margin: 0;
-        cursor: default;
-        transition: none;
+        cursor: pointer;
         border-radius: var(--rounded-corner-small);
-
-        &:hover {
-            transform: none;
-            box-shadow: none;
-        }
     }
 
     @media (max-width: 600px) {

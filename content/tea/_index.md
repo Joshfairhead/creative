@@ -7,6 +7,8 @@ template = "section.html"
 page_template = "article.html"
 [extra]
 hero = false
+styles = ["lightbox.css"]
+scripts = ["travel-lightbox.js"]
 +++
 
 An archive of my tea blog from London, featuring tasting notes and reviews of various teas from Whittards, Fortnum & Mason, Terra Nera Tea Boutique, and other fine tea retailers.
