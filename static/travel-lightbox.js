@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
 
     // Add click handlers to all gallery images
-    document.querySelectorAll('.travel-gallery img').forEach((img, index) => {
+    document.querySelectorAll('.travel-gallery img, .tea-gallery img').forEach((img, index) => {
         img.addEventListener('click', function() {
             // Get all images from the same gallery
-            const gallery = this.closest('.travel-gallery');
+            const gallery = this.closest('.travel-gallery, .tea-gallery');
             currentImages = Array.from(gallery.querySelectorAll('img'));
             currentIndex = currentImages.indexOf(this);
             
