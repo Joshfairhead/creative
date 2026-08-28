@@ -33,3 +33,4 @@ card = "collage.jpg"
 - **Eddie Hazel**: [California Dreamin'](https://youtu.be/SveXC_yabVI?si=cMqFYeZDZf1-OLxq)
 - **Rodger Chapman**: [Moth To a Flame](https://youtu.be/QLOtGzgv0Ag?si=8zU5sGoDvivIozzV)
 - **Blackfield**: [Pain, For the Music](https://youtu.be/d-VOPvny-O0?si=mUr3IqD9pyfhYG5l)
+- **Brian Eno & John Cale**: [Spinning Away](https://www.youtube.com/watch?v=Iotyv2pXDyM)
