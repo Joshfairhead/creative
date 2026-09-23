@@ -8,7 +8,7 @@ date = 2023-08-16
 tags = ["Travel"]
 
 [extra]
-card = "metafest.jpg"
+card = "metafest-card.jpg"
 styles = ["travel-gallery.css"]
 scripts = ["travel-lightbox.js"]
 +++
