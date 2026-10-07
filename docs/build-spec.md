@@ -1,6 +1,6 @@
 # Build Spec — Rust static site generator
 
-Status: **confirmed in principle**. Implementation waits on the design phase (`design-system.md`).
+Status: **confirmed in principle**. Implementation waits on the design phase. Design system: https://claude.ai/artifact/6nFYsUWpdXBHbqCdVQjCAa (tokens, brand book, components; the templates implement it).
 Inputs: [`information-architecture.md`](information-architecture.md) and [`content-inventory.md`](content-inventory.md).
 
 ## 1. Goals and non-goals
