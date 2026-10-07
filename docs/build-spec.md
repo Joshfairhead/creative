@@ -1,12 +1,14 @@
 # Build Spec — Rust static site generator
 
-Status: **draft, awaiting confirmation**. No code until this spec is confirmed.
+Status: **confirmed in principle**. Implementation waits on the design phase (`design-system.md`).
 Inputs: [`information-architecture.md`](information-architecture.md) and [`content-inventory.md`](content-inventory.md).
 
 ## 1. Goals and non-goals
 
 **Goals**
-- A from-scratch static site generator, written in Rust and living in this repo. It builds the whole tree (root + 3 triads + 12 categories + instances) as one site from one content pool.
+- A from-scratch static site generator, written in Rust, in a new repo **`website-2026`**. From one content pool it builds:
+  - the **monolith** (the whole tree under `joshafairhead.com`);
+  - any number of **breakouts** (a single node's subtree as a standalone site on its own subdomain).
 - Content is **typed and validated**: bad content fails the build with a clear error and never ships broken pages.
 - The structure mirrors the current static-site layout loosely (Markdown + TOML front matter, a content folder per node, co-located images), so content moves with minimal rewriting.
 - Pages are fully usable without JavaScript. JS only enhances filtering, sorting and lightboxes.
@@ -56,7 +58,7 @@ A content folder's path *is* its node. An entry outside a node declared in `site
 
 ## 4. Content model
 
-**`site.toml`** declares each node's id, label, parent, host (for triads and categories), path (for instances), and allowed facets. Menus, breadcrumbs, host routing and listings all derive from it.
+**`site.toml`** declares each node's id, label, parent, path, allowed facets, and an optional `breakout = "sights.joshafairhead.com"`. Menus, breadcrumbs, listings and breakout targets all derive from it.
 
 **Entry front matter** (common to all entries):
 - Required: `title`, `date`, `description`.
@@ -100,19 +102,21 @@ Listings sort by date, newest first, by default. Client-side sort (date / title)
 
 ## 7. URLs and hosting
 
-- One output tree, `dist/`, laid out by path: `/curations/sights/art/...`.
-- **Two URL modes:**
-  - `--mode prod` emits host URLs (`https://sights.joshafairhead.com/art/…`);
-  - `--mode local` emits path URLs, so the whole site works on `localhost` with no host setup.
-- The build generates the host routing rules (e.g. `sights.joshafairhead.com/*` → `/curations/sights/:splat`) from `site.toml`, plus canonical links per page.
-- **Hosting:** keep Netlify, as one site with all 16 domains attached. GitHub Actions runs the build and checks; only a green `main` deploys the prebuilt `dist/` via the Netlify CLI. Netlify itself never compiles anything.
+- **Build targets:**
+  - `build` writes the monolith to `dist/monolith/`, laid out by path (`/curations/sights/art/…`).
+  - `build --breakout sights` writes that node's subtree to `dist/sights/`, re-rooted (`/art/…`). `build --all` builds the monolith plus every flagged breakout.
+- **Re-rooting:** in a breakout, the node is the root. The breadcrumb starts there, with one "part of joshafairhead.com" link up to the monolith. Links to entries outside the subtree point at their monolith URL. Link validation runs per target.
+- **Canonical URLs:** a page's canonical is its monolith URL, so search engines don't treat breakouts as duplicates. *(Can flip to the breakout URL per node if you prefer.)*
+- **Local preview:** `serve` previews the monolith, and `serve --breakout sights` previews one breakout, both on `localhost`.
+- **Hosting:** Netlify, with one Netlify site per target (the monolith on `joshafairhead.com`, each breakout on its subdomain). GitHub Actions builds and checks every target; only a green `main` deploys the prebuilt outputs via the Netlify CLI (needs a `NETLIFY_AUTH_TOKEN` secret). Netlify never compiles anything.
+- **Existing hosts** (`creative.`, `blog.`, `portfolio.`, `tea.`) and their deploys are not touched.
 
 ## 8. Quality gates (CI on every push / PR)
 
 1. `cargo fmt --check`
 2. `cargo clippy --all-targets -- -D warnings`
 3. `cargo test`: unit tests for the parsers and validators, plus snapshot tests (`insta`) of rendered fixture pages.
-4. `cargo run -- build --mode prod --strict`: the full validation in §5 over the real content.
+4. `cargo run -- build --all --strict`: the full validation in §5 over the real content, for the monolith and every breakout.
 5. The built-in link check over `dist/`.
 
 A red CI blocks merge and deploy. Locally, `cargo run -- check` runs 3–5.
@@ -135,11 +139,10 @@ The migrated content must pass §5 before Zola files are removed.
 | P1 Model | `site.toml`, schemas, loader, validation, migration | All 111 pages + records load; validation passes; deliberate bad fixtures fail with clear errors |
 | P2 Render | Templates, menus, breadcrumbs, listings, entry pages, shortcodes | Every node and entry renders; link check passes; snapshots reviewed |
 | P3 Collections | Art gallery, music facets, recipient cards | 130 images, 64 albums and 14 tracks render with filters; works without JS |
-| P4 Deploy | Host routing, Netlify via Actions, DNS for 16 hosts | Each host serves its node; old hosts retired |
-| P5 Cleanup | Remove Zola config, theme, scripts; archive `hub` | Repo contains only the new build |
+| P4 Deploy | Netlify sites for the monolith + first breakouts (Sights, Sounds, Tastes), deploy via Actions, DNS | `joshafairhead.com` serves the monolith, and each breakout host serves its subtree standalone |
+| P5 Cleanup | Point `joshafairhead.com` at the new monolith (replacing the `hub` deploy) | The hub is superseded; the old Zola hosts are left untouched |
 
-## 11. Open questions
+## 11. Decided / open
 
-1. **`cv.` and `facilitation.`**: the hub's recipient cards link to these hosts. Bring them into this site (where in the tree?), or leave them as external links?
-2. **Netlify via GitHub Actions** (§7): OK? It needs a `NETLIFY_AUTH_TOKEN` repository secret.
-3. **Repo**: build here in `creative` (and maybe rename it later), or start a new repo?
+- **Decided:** Netlify + GitHub Actions; new repo `website-2026`; old hosts left untouched; Sights, Sounds and Tastes are the first breakouts.
+- **Open:** `cv.` and `facilitation.` stay outside for now. Canonical URL policy for breakouts (default: the monolith URL).

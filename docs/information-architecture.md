@@ -5,7 +5,10 @@ Companions: [`content-inventory.md`](content-inventory.md) (what exists and wher
 
 ## 1. Purpose and semantics
 
-Everything is **one site**: one codebase, one content pool, one deploy. It is viewed through a three-level filter, **triad → category → instance**, and certain levels are broken out onto their own subdomains. The triad follows a receive → reflect → make progression.
+The site is **singular and collective**:
+
+- **Singular:** one codebase, one content pool, one monolith served from `joshafairhead.com`, viewed through a three-level filter, **triad → category → instance**.
+- **Collective:** the monolith is sectioned carefully, so any node (e.g. Sights, Sounds, Tastes) can be **broken out** and deployed on its own subdomain as a standalone site, without forking content or code. The triad follows a receive → reflect → make progression.
 
 | Triad | Meaning | Placement test |
 |---|---|---|
@@ -56,20 +59,34 @@ The instance level is optional per category, and it is how a category grows. For
 - Drafts are never published. They can be previewed locally only.
 - Draft status comes from location alone. There is no draft flag and no "hidden but published" state.
 
-## 5. Address map
+## 5. Addresses: monolith paths and breakouts
 
-Subdomains name the triad or category. Instances are paths under their category host.
+**In the monolith,** every node has a path under the root:
 
-| Level | Hosts |
+| Level | Monolith path |
 |---|---|
-| Root | `joshafairhead.com` (+ `/for/<org>`) |
-| Triads (3) | `curations.` · `considerations.` · `creations.` |
-| Categories (12) | `sights.` `sounds.` `tastes.` `thoughts.` `experiences.` · `expositions.` `retrospectives.` `practices.` · `software.` `recordings.` `media.` `ventures.` |
-| Instances | `sights.…/art` · `sounds.…/music` · `tastes.…/tea` · `thoughts.…/books` · `experiences.…/travel` |
+| Root | `joshafairhead.com/` (+ `/for/<org>`) |
+| Triad | `/curations/` · `/considerations/` · `/creations/` |
+| Category | e.g. `/curations/sights/` |
+| Instance | e.g. `/curations/sights/art/` |
 
-That makes 16 hosts. `creative.`, `blog.`, `portfolio.` and `tea.` are retired, with no redirects. `cv.` and `facilitation.` are open (build spec §11).
+**Breakouts.** Any triad or category can be flagged for breakout. A breakout is the same subtree, deployed as its own site on its own subdomain:
+
+- The node becomes that site's root: `sights.joshafairhead.com/art/`.
+- Its breadcrumb starts at the node, with one link back up to the monolith.
+- Which nodes are broken out is configuration, not structure. Adding or removing a breakout changes nothing in the content.
+
+| Candidate breakout hosts | |
+|---|---|
+| Triads | `curations.` · `considerations.` · `creations.` |
+| Categories | `sights.` `sounds.` `tastes.` `thoughts.` `experiences.` · `expositions.` `retrospectives.` `practices.` · `software.` `recordings.` `media.` `ventures.` |
+
+The first breakouts are Sights, Sounds and Tastes; the rest are enabled as wanted.
+
+**Existing hosts** (`creative.`, `blog.`, `portfolio.`, `tea.`) are **left untouched**. They keep serving their current builds until a separate decision is made. `cv.` and `facilitation.` are also outside this site for now.
 
 ## 6. Constraints on the build
 
+- Each breakout must render correctly as a standalone site, with no links into unpublished parts of the tree.
 - Moving between subdomains is a full page load. The "filtering one monolith" feel (shared shell, consistent menu, fast transition) is a build requirement.
 - Each entry has exactly one home node.

@@ -4,15 +4,15 @@ Companion to [`information-architecture.md`](information-architecture.md) and [`
 
 ## 1. Current estate
 
-Everything listed here is assimilated into **one codebase and one deploy** that serves every host.
+All content is assimilated into **one codebase and one monolith**, from which nodes can be broken out onto subdomains. Existing hosts are left untouched.
 
 | # | Property | Source | What it is today | Fate |
 |---|---|---|---|---|
 | 1 | **joshafairhead.com** | `Joshfairhead/hub` (Zola) | Business card: name + `hello@joshafairhead.com`. Also `/for/<org>` recipient cards with a tagline and tailored links (`acme`, `ngo-org`) | Becomes the root of the new site. Card gains the three triad links; `/for/<org>` pages kept |
-| 2 | **creative.joshafairhead.com** | this repo, `config.toml` | All 10 sections as one flat grid with tag filter and sort | Retired; its content is redistributed into the tree |
-| 3 | **blog.joshafairhead.com** | this repo, `config.blog.toml` | books, music, study, travel | Retired |
-| 4 | **portfolio.joshafairhead.com** | this repo, `config.portfolio.toml` | multimedia, recordings, software, tech-management, timeline | Retired |
-| 5 | **tea.joshafairhead.com** | this repo, `config.tea.toml` | tea | Retired (becomes `tastes.`) |
+| 2 | **creative.joshafairhead.com** | this repo, `config.toml` | All 10 sections as one flat grid with tag filter and sort | **Left untouched.** Its content is copied into the new tree |
+| 3 | **blog.joshafairhead.com** | this repo, `config.blog.toml` | books, music, study, travel | **Left untouched** |
+| 4 | **portfolio.joshafairhead.com** | this repo, `config.portfolio.toml` | multimedia, recordings, software, tech-management, timeline | **Left untouched** |
+| 5 | **tea.joshafairhead.com** | this repo, `config.tea.toml` | tea | **Left untouched.** The new `tastes.` breakout covers the same ground |
 | 6 | **Aesthetics Board** | Claude artifact https://claude.ai/artifact/U2uwxKnSU2PrevNQqKd8mK | 130 images, Collection/Screening views | Its images become Curations › Sights › Art |
 | 7 | **cv.joshafairhead.com**, **facilitation.joshafairhead.com** | Unknown (linked from the hub's `/for/` pages; candidate repos `Joshfairhead/CV`, `Joshfairhead/visualfacilitation`) | Not inventoried | **Open:** see build spec §11 |
 
@@ -20,9 +20,9 @@ Everything listed here is assimilated into **one codebase and one deploy** that 
 
 | Item | Today | Replacement |
 |---|---|---|
-| Zola (`config*.toml`, `themes/duckquill`, `templates/`, `sass/`) | Prototype site generator and theme | Rust build tool in this repo (see build spec) |
+| Zola (`config*.toml`, `themes/duckquill`, `templates/`, `sass/`) | Prototype site generator and theme | Rust build tool in the new `website-2026` repo (see build spec). This repo stays as is |
 | `build-views.sh`, `build.sh`, `serve-view.sh` | Overlapping subset-copy scripts | A single `cargo run -- build` / `serve` |
-| `netlify.toml` (here and in `hub`) | Builds only the creative view; other hosts are configured outside the repo | One deploy for all hosts, with routing by host defined in the repo |
+| `netlify.toml` (here and in `hub`) | Builds only the creative view; other hosts are configured outside the repo | New repo: one monolith deploy, plus one deploy per breakout. This repo's deploys are left as they are |
 | `static/tag-filter.js`, `travel-lightbox.js`, `gallery.js` and per-page CSS | Per-page scripts and styles | Shared components: facet filter, gallery/lightbox, album grid |
 | `static/gallery-editor*.html` | Local gallery tooling | Not carried over; can be re-added as a dev tool |
 | Front-matter flags `draft`, `hide_from_home` | 10 drafts, 2 hidden entries | Replaced by `drafts/` folders. There is no "hidden" state |
