@@ -24,7 +24,7 @@ joshafairhead.com             business card → 3 triad links + About
 │   ├─ Sights       › Art          (Aesthetics Board collection)
 │   ├─ Sounds       › Music
 │   ├─ Tastes       › Tea
-│   ├─ Ideas        › Books
+│   ├─ Thoughts     › Books
 │   └─ Experiences  › Travel
 ├─ Considerations
 │   ├─ Expositions                 (own explanatory writing and research)
@@ -59,8 +59,8 @@ Subdomains name the triad or category. Instances are paths under their category 
 |---|---|
 | Root | `joshafairhead.com` |
 | Triads (3) | `curations.` · `considerations.` · `creations.` |
-| Categories (12) | `sights.` `sounds.` `tastes.` `ideas.` `experiences.` · `expositions.` `retrospectives.` `practices.` · `software.` `recordings.` `media.` `ventures.` |
-| Instances | `sights.…/art` · `sounds.…/music` · `tastes.…/tea` · `ideas.…/books` · `experiences.…/travel` |
+| Categories (12) | `sights.` `sounds.` `tastes.` `thoughts.` `experiences.` · `expositions.` `retrospectives.` `practices.` · `software.` `recordings.` `media.` `ventures.` |
+| Instances | `sights.…/art` · `sounds.…/music` · `tastes.…/tea` · `thoughts.…/books` · `experiences.…/travel` |
 | About | `joshafairhead.com/about` |
 
 Total: 16 hosts. Retired hosts: `creative.`, `blog.`, `portfolio.`, `tea.` are dropped with no redirects. The owner is the only user of these hosts.

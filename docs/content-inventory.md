@@ -33,7 +33,7 @@ Companion to [`information-architecture.md`](information-architecture.md). This 
 | Curations › Sights › Art | Aesthetics Board | 130 images (6 groups) | — |
 | Curations › Sounds › Music | `music/` | 23 | 1 draft |
 | Curations › Tastes › Tea | `tea/` | 18 | — |
-| Curations › Ideas › Books | `books/` | 8 | — |
+| Curations › Thoughts › Books | `books/` | 8 | — |
 | Curations › Experiences › Travel | `travel/` | 19 | 2 `hide_from_home` |
 | Considerations › Expositions | `study/` (part) | 6 | 2 draft |
 | Considerations › Retrospectives | `study/` (part) | 5 | — |
@@ -125,14 +125,14 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 | Entry | Title | Flags | → New node |
 |---|---|---|---|
-| `caravanofdreams` | Caravan of Dreams |  | Curations › Ideas › Books |
-| `dramaticuniversevol3` | The Dramatic Universe Vol. 3: Man and His Nature |  | Curations › Ideas › Books |
-| `dramaticuniversevol4` | The Dramatic Universe Vol. 4: History |  | Curations › Ideas › Books |
-| `dramaticuniversevolume1` | The Dramatic Universe Vol. 1: The Foundations of Natural Philosophy |  | Curations › Ideas › Books |
-| `dramaticuniversevolume2` | The Dramatic Universe Vol. 2: The Foundations of Moral Philosophy |  | Curations › Ideas › Books |
-| `energiesmaterialvitalcosmic` | Energies; material, vital, cosmic |  | Curations › Ideas › Books |
-| `musicthebrainandecstacy` | Music The Brain and Ecstacy |  | Curations › Ideas › Books |
-| `trueperception` | True Perception |  | Curations › Ideas › Books |
+| `caravanofdreams` | Caravan of Dreams |  | Curations › Thoughts › Books |
+| `dramaticuniversevol3` | The Dramatic Universe Vol. 3: Man and His Nature |  | Curations › Thoughts › Books |
+| `dramaticuniversevol4` | The Dramatic Universe Vol. 4: History |  | Curations › Thoughts › Books |
+| `dramaticuniversevolume1` | The Dramatic Universe Vol. 1: The Foundations of Natural Philosophy |  | Curations › Thoughts › Books |
+| `dramaticuniversevolume2` | The Dramatic Universe Vol. 2: The Foundations of Moral Philosophy |  | Curations › Thoughts › Books |
+| `energiesmaterialvitalcosmic` | Energies; material, vital, cosmic |  | Curations › Thoughts › Books |
+| `musicthebrainandecstacy` | Music The Brain and Ecstacy |  | Curations › Thoughts › Books |
+| `trueperception` | True Perception |  | Curations › Thoughts › Books |
 
 ### `travel/` — "Travel" · 19 entries · today on: creative, blog
 
