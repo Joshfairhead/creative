@@ -1,55 +1,74 @@
 # Content Inventory — current estate → new schema
 
-Companion to [`information-architecture.md`](information-architecture.md). This lists everything that exists today and where each piece lands under the triad → category → instance schema. Snapshot taken at commit `c3541f8`.
+Companion to [`information-architecture.md`](information-architecture.md) and [`build-spec.md`](build-spec.md). This lists everything that exists today and where it lands. Snapshot taken at commit `c3541f8`.
 
 ## 1. Current estate
 
-| # | Property | Where it lives | What it shows | How it's built / served |
+Everything listed here is assimilated into **one codebase and one deploy** that serves every host.
+
+| # | Property | Source | What it is today | Fate |
 |---|---|---|---|---|
-| 1 | **creative.joshafairhead.com** | this repo, `config.toml` | All 10 sections, as one flat card grid with tag filter and sort | `zola build` (the only build in `netlify.toml`) |
-| 2 | **blog.joshafairhead.com** | this repo, `config.blog.toml` | books, music, study, travel | `build-views.sh` / `build.sh` copy a section subset |
-| 3 | **portfolio.joshafairhead.com** | this repo, `config.portfolio.toml` | multimedia, recordings, software, tech-management, timeline | same |
-| 4 | **tea.joshafairhead.com** | this repo, `config.tea.toml` | tea | `build-views.sh` only (`build.sh` has no tea view) |
-| 5 | **Aesthetics Board** | Claude artifact (private, unpublished): https://claude.ai/artifact/U2uwxKnSU2PrevNQqKd8mK | 130 images of visual art with Collection/Screening views | Static `items.json` and 130 image files in the artifact, plus a `db` for removals and screening (currently empty) |
-| 6 | **joshafairhead.com** (business card) | **not in this repo**: location to confirm | Business card | Unknown |
+| 1 | **joshafairhead.com** | `Joshfairhead/hub` (Zola) | Business card: name + `hello@joshafairhead.com`. Also `/for/<org>` recipient cards with a tagline and tailored links (`acme`, `ngo-org`) | Becomes the root of the new site. Card gains the three triad links; `/for/<org>` pages kept |
+| 2 | **creative.joshafairhead.com** | this repo, `config.toml` | All 10 sections as one flat grid with tag filter and sort | Retired; its content is redistributed into the tree |
+| 3 | **blog.joshafairhead.com** | this repo, `config.blog.toml` | books, music, study, travel | Retired |
+| 4 | **portfolio.joshafairhead.com** | this repo, `config.portfolio.toml` | multimedia, recordings, software, tech-management, timeline | Retired |
+| 5 | **tea.joshafairhead.com** | this repo, `config.tea.toml` | tea | Retired (becomes `tastes.`) |
+| 6 | **Aesthetics Board** | Claude artifact https://claude.ai/artifact/U2uwxKnSU2PrevNQqKd8mK | 130 images, Collection/Screening views | Its images become Curations › Sights › Art |
+| 7 | **cv.joshafairhead.com**, **facilitation.joshafairhead.com** | Unknown (linked from the hub's `/for/` pages; candidate repos `Joshfairhead/CV`, `Joshfairhead/visualfacilitation`) | Not inventoried | **Open:** see build spec §11 |
 
-## 2. Infrastructure to reconfigure
+## 2. Infrastructure being replaced
 
-| Item | Today | Fate under new schema |
+| Item | Today | Replacement |
 |---|---|---|
-| `config.toml` | creative hub; nav links to Blog and Portfolio | Replaced by per-node config (root, 3 triads, 12 categories) or a single config if the tool allows it |
-| `config.blog.toml`, `config.portfolio.toml`, `config.tea.toml` | 3 subset views | Retire |
-| `build-views.sh`, `build.sh`, `serve-view.sh` | Two overlapping build scripts (`build.sh` is missing tea and writes to different output dirs) plus a local serve script | Retire. Replace with one tree-driven build |
-| `netlify.toml` | Builds the creative view only | Blog, portfolio and tea deploy via settings outside the repo (to confirm in Netlify). Redo for 16 hosts |
-| `templates/index.html` + `partials/card_grid.html` | Flat grid; skips `extra.hide_from_home` | Becomes the node grid (triad, category or instance listing) |
-| `templates/partials/nav.html` + `static/tag-filter.js` | Tag filter (only "Tea" shown by default) and sort menu | Becomes the level menu (next-level choices) plus breadcrumb. Tag filter optional within a node |
-| Section `_index.md` titles | "Technical" (software), "Writing" (study), "Career" (timeline), "Tea Journal" | Retitled to node names |
-| Tags | Section-mirroring tags (Music, Travel, Tea, Recordings, Study, Software, Multimedia, CV…) plus fine tags (tea grades, Artist, Live, Studio, Venues, Events) | Section-mirroring tags become redundant (the node replaces them). Keep the fine tags as facets |
+| Zola (`config*.toml`, `themes/duckquill`, `templates/`, `sass/`) | Prototype site generator and theme | Rust build tool in this repo (see build spec) |
+| `build-views.sh`, `build.sh`, `serve-view.sh` | Overlapping subset-copy scripts | A single `cargo run -- build` / `serve` |
+| `netlify.toml` (here and in `hub`) | Builds only the creative view; other hosts are configured outside the repo | One deploy for all hosts, with routing by host defined in the repo |
+| `static/tag-filter.js`, `travel-lightbox.js`, `gallery.js` and per-page CSS | Per-page scripts and styles | Shared components: facet filter, gallery/lightbox, album grid |
+| `static/gallery-editor*.html` | Local gallery tooling | Not carried over; can be re-added as a dev tool |
+| Front-matter flags `draft`, `hide_from_home` | 10 drafts, 2 hidden entries | Replaced by `drafts/` folders. There is no "hidden" state |
+| Shortcodes `image()` (~1,870 uses), `youtube()` (19), `vimeo()` (5) | Zola shortcodes | Supported by the new build with the same names and arguments, so content moves without rewriting |
+| Inline HTML in 101 pages (album galleries, etc.) | Raw HTML in Markdown | Passed through as-is. Album galleries are converted to music data (§4) |
 
 ## 3. Totals by new node
 
-| New node | Source | Entries | Not publicly listed |
+| New node | Source | Published | `drafts/` |
 |---|---|---|---|
 | Curations › Sights › Art | Aesthetics Board | 130 images (6 groups) | — |
-| Curations › Sounds › Music | `music/` | 23 | 1 draft |
+| Curations › Sounds › Music | `music/` | 21 artists · 64 albums · 14 tracks | 1 (Iron Butterfly) |
 | Curations › Tastes › Tea | `tea/` | 18 | — |
 | Curations › Thoughts › Books | `books/` | 8 | — |
-| Curations › Experiences › Travel | `travel/` | 19 | 2 `hide_from_home` |
-| Considerations › Expositions | `study/` (part) | 6 | 2 draft |
+| Curations › Experiences › Travel | `travel/` | 17 | 2 (Cornwall Reflections, Newquay PAR) |
+| Considerations › Expositions | `study/` (part) | 4 | 2 (both cosmic-ecology pieces) |
 | Considerations › Retrospectives | `study/` (part) | 5 | — |
 | Considerations › Practices | `study/` (part) | 2 | — |
-| Creations › Software | `software/` | 9 | 1 draft |
-| Creations › Recordings | `recordings/` | 15 | 1 draft |
+| Creations › Software | `software/` | 8 | 1 (Hackalong) |
+| Creations › Recordings | `recordings/` | 14 | 1 (Urban Big Band) |
 | Creations › Media | `multimedia/` | 6 | — |
 | Creations › Ventures | `tech-management/` | 8 | — |
-| About (CV) | `timeline/` | 5 | 5 draft |
-| **Total** | | **124 pages + 130 images** | |
+| Site-level `drafts/` | `timeline/` | — | 5 (all of Career) |
+| **Total** | | **111 pages + 130 images + 78 music records** | **12** |
 
-Every current entry maps to exactly one node, with no orphans. The only section that splits is `study/`; all others move whole.
+There are no orphans: every current entry has exactly one new home.
 
-## 4. Aesthetics Board → Curations › Sights › Art
+## 4. Music → Artists · Albums · Tracks
 
-The board's 130 images are all live: the board's `removed` and `screening` collections are empty. Each image record has the fields `id, section, artist, title, source, w, h, file`.
+The Music instance is filterable by **Artists / Albums / Tracks**. Songs and tracks are treated as the same thing.
+
+| Facet | Source | Count |
+|---|---|---|
+| Artists | Artist pages in `music/` (22 pages, 1 draft) | 21 |
+| Albums | `album-item` blocks in artist pages (58) + "Special Mentions" § Albums (6) | 64 |
+| Tracks | "Special Mentions" § Tracks | 14 |
+
+Migration:
+- Each album or track becomes a structured record with title, artist, link, optional cover, and an optional link to the artist's page.
+- Artist pages keep their prose, and their album grids render from the records.
+- The "Special Mentions" page (`music/all`) is dissolved into records and no longer exists as a page.
+- One link is broken today: the Elton John album has a malformed URL (`https:/https://…`). The new build's link validation will catch errors like this.
+
+## 5. Aesthetics Board → Curations › Sights › Art
+
+All 130 images are live: the board's `removed` and `screening` collections are empty. Each item has the fields `id, section, artist, title, source, w, h, file`.
 
 | Board group | Images | Artists |
 |---|---|---|
@@ -60,47 +79,46 @@ The board's 130 images are all live: the board's `removed` and `screening` colle
 | Leo Kenney | 13 | Leo Kenney |
 | Generative | 8 | Hamonshū (@MoriYuzan) |
 
-What migration needs:
-- **A different content shape.** Board items are images with captions and source links, not article pages. Art needs a gallery entry type (one record per image) rather than `index.md` pages.
-- **Asset export.** The image files live in the artifact's file store and must be copied into the repo or a media host.
-- **Groups and artists are facets, not navigation.** The schema has three levels and Art is already an instance, so they work as filters *within* Art, the way the board's chips do today.
-- **The screening workflow** (Keep/Pass on candidates) is curation tooling. Whether it survives on the public site or stays a private artifact is for the build spec to decide.
+Migration:
+- `items.json` becomes the Art data file, and the image files are exported into the repo.
+- Groups and artists are facets within Art.
+- The Keep/Pass screening workflow stays in the artifact as private curation tooling; it is not part of the public site.
 
-## 5. Per-entry mapping
+## 6. Per-entry mapping
 
-Flags: `draft` means not built. `hide_from_home` means built and reachable by URL but left out of grids.
+"Today" shows the current flags. "→ New home" gives the node, with `drafts/` marking entries that move into that node's drafts folder.
 
 ### `music/` — "Music" · 23 entries · today on: creative, blog
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
-| `all` | Special Mentions |  | Curations › Sounds › Music |
-| `avishicohen` | Avishi Cohen |  | Curations › Sounds › Music |
-| `brianwilson` | Brian Wilson |  | Curations › Sounds › Music |
-| `catstevens` | Cat Stevens |  | Curations › Sounds › Music |
-| `fatfreddiesdrop` | Fat Freddies Drop |  | Curations › Sounds › Music |
-| `floatingpoint` | Floating Points |  | Curations › Sounds › Music |
-| `ghost` | Ghost |  | Curations › Sounds › Music |
-| `gogopenguin` | GoGo Penguin |  | Curations › Sounds › Music |
-| `hilltophoods` | Hilltop Hoods |  | Curations › Sounds › Music |
-| `ironbutterfly` | Iron Butterfly | draft | Curations › Sounds › Music |
-| `justice` | Justice |  | Curations › Sounds › Music |
-| `killitkid` | Kill it Kid |  | Curations › Sounds › Music |
-| `maynardjameskenan` | Maynard James Keenan |  | Curations › Sounds › Music |
-| `nilerodgers` | Nile Rodgers |  | Curations › Sounds › Music |
-| `robertfripp` | Robert Fripp |  | Curations › Sounds › Music |
-| `robertplant` | Robert Plant |  | Curations › Sounds › Music |
-| `snarkypuppy` | Snarky Puppy |  | Curations › Sounds › Music |
-| `steelydan` | Steely Dan |  | Curations › Sounds › Music |
-| `stevewilson` | Steve Wilson |  | Curations › Sounds › Music |
-| `sturgilsimpson` | Sturgill Simpson |  | Curations › Sounds › Music |
-| `sylvainrichards20syl` | Sylvain Richards (20SYL) |  | Curations › Sounds › Music |
-| `theband` | The Band |  | Curations › Sounds › Music |
-| `wolfmother` | Wolfmother |  | Curations › Sounds › Music |
+| `all` | Special Mentions |  | Dissolved into Music › Albums (6) + Tracks (14) records |
+| `avishicohen` | Avishi Cohen |  | Curations › Sounds › Music › Artists |
+| `brianwilson` | Brian Wilson |  | Curations › Sounds › Music › Artists |
+| `catstevens` | Cat Stevens |  | Curations › Sounds › Music › Artists |
+| `fatfreddiesdrop` | Fat Freddies Drop |  | Curations › Sounds › Music › Artists |
+| `floatingpoint` | Floating Points |  | Curations › Sounds › Music › Artists |
+| `ghost` | Ghost |  | Curations › Sounds › Music › Artists |
+| `gogopenguin` | GoGo Penguin |  | Curations › Sounds › Music › Artists |
+| `hilltophoods` | Hilltop Hoods |  | Curations › Sounds › Music › Artists |
+| `ironbutterfly` | Iron Butterfly | draft | Curations › Sounds › Music › Artists › `drafts/` |
+| `justice` | Justice |  | Curations › Sounds › Music › Artists |
+| `killitkid` | Kill it Kid |  | Curations › Sounds › Music › Artists |
+| `maynardjameskenan` | Maynard James Keenan |  | Curations › Sounds › Music › Artists |
+| `nilerodgers` | Nile Rodgers |  | Curations › Sounds › Music › Artists |
+| `robertfripp` | Robert Fripp |  | Curations › Sounds › Music › Artists |
+| `robertplant` | Robert Plant |  | Curations › Sounds › Music › Artists |
+| `snarkypuppy` | Snarky Puppy |  | Curations › Sounds › Music › Artists |
+| `steelydan` | Steely Dan |  | Curations › Sounds › Music › Artists |
+| `stevewilson` | Steve Wilson |  | Curations › Sounds › Music › Artists |
+| `sturgilsimpson` | Sturgill Simpson |  | Curations › Sounds › Music › Artists |
+| `sylvainrichards20syl` | Sylvain Richards (20SYL) |  | Curations › Sounds › Music › Artists |
+| `theband` | The Band |  | Curations › Sounds › Music › Artists |
+| `wolfmother` | Wolfmother |  | Curations › Sounds › Music › Artists |
 
 ### `tea/` — "Tea Journal" · 18 entries · today on: creative, tea
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `2009-12-05-assam-tgfop` | Assam T.G.F.O.P. |  | Curations › Tastes › Tea |
 | `2009-12-05-ceylon-op` | Ceylon O.P. |  | Curations › Tastes › Tea |
@@ -123,7 +141,7 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `books/` — "Books" · 8 entries · today on: creative, blog
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `caravanofdreams` | Caravan of Dreams |  | Curations › Thoughts › Books |
 | `dramaticuniversevol3` | The Dramatic Universe Vol. 3: Man and His Nature |  | Curations › Thoughts › Books |
@@ -136,11 +154,11 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `travel/` — "Travel" · 19 entries · today on: creative, blog
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `Indiapt1` | India 1: Gorkana |  | Curations › Experiences › Travel |
 | `austria` | Austria: Crypto Commons Gathering |  | Curations › Experiences › Travel |
-| `cornwall-reflections` | Cornwall Reflections | hide_from_home | Curations › Experiences › Travel |
+| `cornwall-reflections` | Cornwall Reflections | hidden from grids | Curations › Experiences › Travel › `drafts/` |
 | `croatia` | Croatia: Metafest |  | Curations › Experiences › Travel |
 | `eden-project` | The Eden Project |  | Curations › Experiences › Travel |
 | `heligan-gardens` | Heligan Gardens |  | Curations › Experiences › Travel |
@@ -152,7 +170,7 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 | `japan3` | Japan 3: Tokyo Return |  | Curations › Experiences › Travel |
 | `kew-gardens` | Kew Gardens |  | Curations › Experiences › Travel |
 | `metaphorum` | UK: Metaphorum Manchester |  | Curations › Experiences › Travel |
-| `newquay-par` | Newquay Participatory Action Research | hide_from_home | Curations › Experiences › Travel |
+| `newquay-par` | Newquay Participatory Action Research | hidden from grids | Curations › Experiences › Travel › `drafts/` |
 | `olbia` | Olbia: Metalinguistics |  | Curations › Experiences › Travel |
 | `poland` | Poland: Chinwags Poznan |  | Curations › Experiences › Travel |
 | `portugal` | Portugal: Boom Festival |  | Curations › Experiences › Travel |
@@ -160,12 +178,12 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `study/` — "Writing" · 13 entries · today on: creative, blog
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `cats_theory_1` | Cats Theory Primer: Ground Zero |  | Considerations › Expositions |
 | `cats_theory_2` | Cats Theory Primer: Reasoning and Revisions |  | Considerations › Expositions |
 | `emergentcyclicaltheory` | Emergent Cyclical Theory |  | Considerations › Expositions |
-| `explorations_in_cosmic_ecology` | Explorations in Cosmic Ecology | draft | Considerations › Expositions |
+| `explorations_in_cosmic_ecology` | Explorations in Cosmic Ecology | draft | Considerations › Expositions › `drafts/` |
 | `interactive_vsm` | Methodology Development: Interactive VSM |  | Considerations › Practices |
 | `monastic_design` | Methodology Development: Monastic Design |  | Considerations › Practices |
 | `process_philosophy_1` | Process Thought and Science 2025 (Session 1) |  | Considerations › Retrospectives |
@@ -173,16 +191,16 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 | `process_philosophy_3` | Process Thought and Science 2025 (Session 3) |  | Considerations › Retrospectives |
 | `process_philosophy_4` | Process Thought and Science 2025 (Session 4) |  | Considerations › Retrospectives |
 | `process_philosophy_5` | Process Thought and Science 2025 (Session 5) |  | Considerations › Retrospectives |
-| `reflections_on_cosmic_ecology` | Reflections on Cosmic Ecology | draft | Considerations › Expositions |
+| `reflections_on_cosmic_ecology` | Reflections on Cosmic Ecology | draft | Considerations › Expositions › `drafts/` |
 | `semiotics` | Semiotics in Brief |  | Considerations › Expositions |
 
 ### `software/` — "Technical" · 9 entries · today on: creative, portfolio
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `adaptivecapital` | Adaptive Capital |  | Creations › Software |
 | `blockchainonboarding` | Blockchain Onboarding |  | Creations › Software |
-| `hackalong` | Hackalong | draft | Creations › Software |
+| `hackalong` | Hackalong | draft | Creations › Software › `drafts/` |
 | `hermitage` | Hermitage |  | Creations › Software |
 | `holons` | Holons |  | Creations › Software |
 | `interspace` | Interspace |  | Creations › Software |
@@ -192,7 +210,7 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `recordings/` — "Recordings" · 15 entries · today on: creative, portfolio
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `beatbehind` | Beat Behind |  | Creations › Recordings |
 | `brentwoodroyalyouthorchestra` | Brentwood Royal Youth Legion Orchestra |  | Creations › Recordings |
@@ -208,11 +226,11 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 | `soascubanbigbands` | SOAS Cuban Big Band |  | Creations › Recordings |
 | `sonsofgingerbread` | Sons of Gingerbread |  | Creations › Recordings |
 | `thamesvallyphilharmonia` | Isobella Peck Cubann II Thames Valley Philharmonic |  | Creations › Recordings |
-| `urbanbigbandandgamelanorchestra` | Urban Big Band and Gamelan Orchestra Recording | draft | Creations › Recordings |
+| `urbanbigbandandgamelanorchestra` | Urban Big Band and Gamelan Orchestra Recording | draft | Creations › Recordings › `drafts/` |
 
 ### `multimedia/` — "Multimedia" · 6 entries · today on: creative, portfolio
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `calma` | Calma Video |  | Creations › Media |
 | `cursed` | Cursed Animation |  | Creations › Media |
@@ -223,7 +241,7 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `tech-management/` — "Tech Management" · 8 entries · today on: creative, portfolio
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
 | `borrisbrejeca` | Boris Brejcha (lights) |  | Creations › Ventures |
 | `eggldn` | Egg London - Technical Management |  | Creations › Ventures |
@@ -236,22 +254,14 @@ Flags: `draft` means not built. `hide_from_home` means built and reachable by UR
 
 ### `timeline/` — "Career" · 5 entries · today on: creative, portfolio
 
-| Entry | Title | Flags | → New node |
+| Entry | Title | Today | → New home |
 |---|---|---|---|
-| `commonsstack` | Commons Stack | draft | About (CV page) |
-| `giveth` | Giveth | draft | About (CV page) |
-| `liminalvillage` | Liminal Village | draft | About (CV page) |
-| `pillar` | Pillar Project | draft | About (CV page) |
-| `regenfoundation` | Regen Foundation | draft | About (CV page) |
+| `commonsstack` | Commons Stack | draft | drafts/ (site-level) |
+| `giveth` | Giveth | draft | drafts/ (site-level) |
+| `liminalvillage` | Liminal Village | draft | drafts/ (site-level) |
+| `pillar` | Pillar Project | draft | drafts/ (site-level) |
+| `regenfoundation` | Regen Foundation | draft | drafts/ (site-level) |
 
 ### Aesthetics Board — 130 images · today: private artifact only
 
-All 130 images → Curations › Sights › Art, grouped as in §4.
-
-## 6. Issues surfaced by the inventory
-
-1. **Business card location.** `joshafairhead.com` isn't in this repo. Its source needs finding so it can be brought into the build, or linked from it.
-2. **Deploy config for blog, portfolio and tea is outside the repo.** Check Netlify site settings before retiring those hosts.
-3. **Drafts.** The whole of `timeline/` (5 entries) is draft, so the About page has no published content yet. The two cosmic-ecology pieces are also draft.
-4. **`music/all` ("Special Mentions")** is a roundup page, not an artist entry. Decide whether it stays an entry under Music or becomes Music's intro text.
-5. **Duplicate build scripts.** `build.sh` and `build-views.sh` overlap and disagree. Both are retired in the rebuild.
+All 130 → Curations › Sights › Art (see §5).

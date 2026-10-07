@@ -1,12 +1,11 @@
 # Information Architecture — Curations · Considerations · Creations
 
-Status: **ratified** (design only, build tool deliberately undecided).
-Companion: [`content-inventory.md`](content-inventory.md) — what exists today and where each piece goes.
+Status: **ratified**.
+Companions: [`content-inventory.md`](content-inventory.md) (what exists and where it goes) and [`build-spec.md`](build-spec.md) (how it is built).
 
 ## 1. Purpose and semantics
 
-The whole site is one content pool (a monolith) viewed through a three-level filter:
-**triad → category → instance**. The triad follows a receive → reflect → make progression.
+Everything is **one site**: one codebase, one content pool, one deploy. It is viewed through a three-level filter, **triad → category → instance**, and certain levels are broken out onto their own subdomains. The triad follows a receive → reflect → make progression.
 
 | Triad | Meaning | Placement test |
 |---|---|---|
@@ -14,65 +13,63 @@ The whole site is one content pool (a monolith) viewed through a three-level fil
 | **Considerations** | what is thought through | Did I *think it through*? |
 | **Creations** | what is made | Did I *make* it? |
 
-Career history sits outside the triad as an **About/CV page**.
-
 ## 2. Tree
 
 ```
-joshafairhead.com             business card → 3 triad links + About
+joshafairhead.com             business card: name, contact, 3 triad links
+│   └─ /for/<org>             recipient cards (tagline + tailored links)
 ├─ Curations
-│   ├─ Sights       › Art          (Aesthetics Board collection)
-│   ├─ Sounds       › Music
+│   ├─ Sights       › Art
+│   ├─ Sounds       › Music          facets: Artists · Albums · Tracks
 │   ├─ Tastes       › Tea
-│   ├─ Thoughts     › Books
+│   ├─ Thoughts     › Books          (more non-book thoughts to come)
 │   └─ Experiences  › Travel
 ├─ Considerations
-│   ├─ Expositions                 (own explanatory writing and research)
-│   ├─ Retrospectives              (write-ups of courses taken)
-│   └─ Practices                   (methods developed)
-├─ Creations
-│   ├─ Software
-│   ├─ Recordings
-│   ├─ Media                       (scores, sound design, film, craft)
-│   └─ Ventures                    (venues, events, organising)
-└─ About                           (career / CV)
+│   ├─ Expositions                   own explanatory writing and research
+│   ├─ Retrospectives                write-ups of courses taken
+│   └─ Practices                     methods developed
+└─ Creations
+    ├─ Software
+    ├─ Recordings
+    ├─ Media                         scores, sound design, film, craft
+    └─ Ventures                      venues, events, organising
 ```
 
-The instance level is optional per category. It is how a category grows: Sights › Art could later gain Sights › Film. Categories without instances are terminal.
+The instance level is optional per category, and it is how a category grows. For example, Thoughts › Books will gain siblings that are not books. Categories without instances are terminal.
+
+**Facets** are filters *within* a node. They never add a navigation level. Examples: Music's Artists / Albums / Tracks, Art's groups and artists, and tags within any node.
 
 ## 3. Filter / navigation model
 
-1. **Root (business card):** identity plus three triad links and an About link. No content listing.
+1. **Root (business card):** name, contact email, and links to the three triads. No content listing.
 2. **Selecting a triad** shows every entry in that triad. The menu offers that triad's categories.
 3. **Selecting a category** narrows to that category's entries. The menu offers its instances, if any.
-4. **Selecting an instance** narrows further. This is the terminal filter.
+4. **Selecting an instance** narrows further. This is the terminal level; facets may filter within it.
 5. Every selection does three things together: (a) filters the content, (b) changes the address, (c) swaps the menu to the next level's options.
-6. A breadcrumb (e.g. Curations › Sights › Art) shows the path, and each crumb steps back up a level.
-7. There is no sideways movement between triads except back up through the breadcrumb or root.
+6. A breadcrumb (e.g. Curations › Sights › Art) shows the path, and each crumb steps back up.
+7. There is no sideways movement between triads except through the breadcrumb or root.
 8. Nodes with no published entries are hidden from menus.
 
-## 4. Address map
+## 4. Drafts
+
+- Any node may contain a `drafts/` folder. Content that does not belong to any node yet goes in a site-level `drafts/` folder.
+- Drafts are never published. They can be previewed locally only.
+- Draft status comes from location alone. There is no draft flag and no "hidden but published" state.
+
+## 5. Address map
 
 Subdomains name the triad or category. Instances are paths under their category host.
 
 | Level | Hosts |
 |---|---|
-| Root | `joshafairhead.com` |
+| Root | `joshafairhead.com` (+ `/for/<org>`) |
 | Triads (3) | `curations.` · `considerations.` · `creations.` |
 | Categories (12) | `sights.` `sounds.` `tastes.` `thoughts.` `experiences.` · `expositions.` `retrospectives.` `practices.` · `software.` `recordings.` `media.` `ventures.` |
 | Instances | `sights.…/art` · `sounds.…/music` · `tastes.…/tea` · `thoughts.…/books` · `experiences.…/travel` |
-| About | `joshafairhead.com/about` |
 
-Total: 16 hosts. Retired hosts: `creative.`, `blog.`, `portfolio.`, `tea.` are dropped with no redirects. The owner is the only user of these hosts.
+That makes 16 hosts. `creative.`, `blog.`, `portfolio.` and `tea.` are retired, with no redirects. `cv.` and `facilitation.` are open (build spec §11).
 
-## 5. Constraints handed to the build phase
+## 6. Constraints on the build
 
-- Moving between subdomains is a full page load. The "filtering one monolith" feel (shared shell, consistent menu, fast transition) is a requirement on whichever tool is chosen.
-- Entries keep a single home node. Tags may remain as a secondary facet inside a node, but tags never define navigation.
-- Hidden-from-grid and draft states must survive migration (see inventory §5).
-
-## 6. Deliberately open
-
-- The About page's form and content.
-- Visual design.
-- The build tool: extend Zola or rebuild. This gets its own spec, which takes `content-inventory.md` as input.
+- Moving between subdomains is a full page load. The "filtering one monolith" feel (shared shell, consistent menu, fast transition) is a build requirement.
+- Each entry has exactly one home node.
