@@ -2,6 +2,7 @@
 
 Status: **ratified**.
 Companions: [`content-inventory.md`](content-inventory.md) (what exists and where it goes) and [`build-spec.md`](build-spec.md) (how it is built).
+Design: system https://claude.ai/artifact/6nFYsUWpdXBHbqCdVQjCAa · page mockups https://claude.ai/artifact/APpjD6pBB3iPqxNotukugo
 
 ## 1. Purpose and semantics
 
@@ -45,11 +46,11 @@ The instance level is optional per category, and it is how a category grows. For
 ## 3. Filter / navigation model
 
 1. **Root (business card):** name, contact email, and links to the three triads. No content listing.
-2. **Selecting a triad** shows every entry in that triad. The menu offers that triad's categories.
+2. **Selecting a triad** shows every entry in that triad as one mixed grid, newest first. The menu offers that triad's categories as pills (led by `All`) that filter the grid in place, updating the address to the category.
 3. **Selecting a category** narrows to that category's entries. The menu offers its instances, if any.
 4. **Selecting an instance** narrows further. This is the terminal level; facets may filter within it.
 5. Every selection does three things together: (a) filters the content, (b) changes the address, (c) swaps the menu to the next level's options.
-6. A breadcrumb (e.g. Curations › Sights › Art) shows the path, and each crumb steps back up.
+6. A breadcrumb (e.g. Curations › Sights › Art) shows the path, and each crumb steps back up. It is the site header: there is no separate header bar.
 7. There is no sideways movement between triads except through the breadcrumb or root.
 8. Nodes with no published entries are hidden from menus.
 
